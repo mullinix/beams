@@ -1,0 +1,3 @@
+composite_number = 2
+material_files = material.txt,hello.txt
+loads_file = loads.txt

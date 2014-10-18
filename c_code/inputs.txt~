@@ -1,0 +1,6 @@
+composite_number = 1
+material_files = material.txt
+loads_file = loads.txt
+nodes_file = nodes.txt
+bcs_file = bcs.txt
+displacement_dofs = 1,2,2

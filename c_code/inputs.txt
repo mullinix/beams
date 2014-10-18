@@ -1,0 +1,9 @@
+composite_number = 1
+loads_file = loads.txt
+material_files = material.txt
+nodes_file = nodes.txt
+bcs_file = bcs.txt
+displacement_dofs = 1,2,2
+total_length = 1.000000000000000e-01
+a = 1.000000000000000e+00
+Omega = 0.000000000000000e+00

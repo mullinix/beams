@@ -1,0 +1,12 @@
+*/
+!c_code/
+**/luatex*
+/*$*
+**/.*
+/*~*
+.*
+!/.gitignore
+*desktop.ini*
+*.dat
+*onflict*
+*.dat

@@ -1,0 +1,13 @@
+clear all;
+n=256;
+A=rand(n);
+b=rand(n,1);
+% ApAT = A*A';
+tic;
+for i=1:1000
+%     [L,U] = lu(A);
+%     y = inv(L)*b;
+%     x = inv(U)*y;
+end
+toc
+error = norm(A*x - b)/norm(b)

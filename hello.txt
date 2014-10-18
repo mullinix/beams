@@ -1,0 +1,7 @@
+E = 73.1
+nu = 0.33
+stress_yield = 0.324
+stress_ultimate = 0.469
+geometry_file = geometry.txt
+nodes_file = nodes.txt
+rotation_angles = 0,90,45
