@@ -5,7 +5,9 @@
 #include "get_elements.hpp"
 #include <Eigen/Dense>
 
+#include <cstdio>
 #include <cstdlib>
+#include <sys/time.h>
 #include <iostream>
 
 // specify namespace usage
@@ -97,6 +99,10 @@ int main(int argc, char** argv) {
 	else {
 		inputs_file += "inputs.txt";
 	}
+	double thyme;
+	long usecs;
+	struct timeval tstart,tend;
+	gettimeofday(&tstart,NULL);
 	// try to open the file. terminate upon failure.
 	int return_error;
 	return_error = read_inputs(inputs_file);
@@ -127,9 +133,12 @@ int main(int argc, char** argv) {
 	return_error = read_bcs(inputs.bcs_file);
 	if(return_error != 0) 
 		return return_error;
+	gettimeofday(&tend,NULL);
 	// print what we have read in.
 	print_structs();
-	
+	usecs = (tend.tv_sec - tstart.tv_sec) *1000000 + (tend.tv_usec - tstart.tv_usec);
+	thyme = usecs*1e-6;
+	printf("Time to read inputs: %.5e\n",thyme);
 	/*
 	 * Here we will begin doing work.
 	//test element matrices
@@ -154,9 +163,16 @@ int main(int argc, char** argv) {
 	G = MatrixXd::Zero(global_dofs,global_dofs);
 	K = MatrixXd::Zero(global_dofs,global_dofs);
 	Sigma = MatrixXd::Zero(global_dofs,global_dofs);
-	
+
+	gettimeofday(&tstart,NULL);
 	build_global_matrices();
+	gettimeofday(&tend,NULL);
+
+	usecs = (tend.tv_sec - tstart.tv_sec) *1000000 + (tend.tv_usec - tstart.tv_usec);
+	thyme = usecs*1e-6;
+	printf("Time to build and assemble: %.5e\n",thyme);
 	
+	gettimeofday(&tstart,NULL);
 	p_fp = fopen(P_file,"w");
 	m_fp = fopen(M_file,"w");
 	g_fp = fopen(G_file,"w");
@@ -179,31 +195,36 @@ int main(int argc, char** argv) {
 		printf("Error: Couldn't open %s for printing!\n",K_file);
 		return 1;
 	}
-	if(Sigma_fp==NULL){
+	if(sigma_fp==NULL){
 		printf("Error: Couldn't open %s for printing!\n",Sigma_file);
 		return 1;
 	}
 	
 	for(int i=0; i<P.rows(); i++) {
 		for(int j=0; j<P.cols(); j++) {
-			fprintf(p_file,"%.15e\t",P(i,j));
-			fprintf(m_file,"%.15e\t",M(i,j));
-			fprintf(g_file,"%.15e\t",G(i,j));
-			fprintf(k_file,"%.15e\t",K(i,j));
-			fprintf(sigma_file,"%.15e\t",Sigma(i,j));
+			fprintf(p_fp,"%.15e\t",P(i,j));
+			fprintf(m_fp,"%.15e\t",M(i,j));
+			fprintf(g_fp,"%.15e\t",G(i,j));
+			fprintf(k_fp,"%.15e\t",K(i,j));
+			fprintf(sigma_fp,"%.15e\t",Sigma(i,j));
 		}
-		fprintf(p_file,"\n");
-		fprintf(m_file,"\n");
-		fprintf(g_file,"\n");
-		fprintf(k_file,"\n");
-		fprintf(sigma_file,"\n");
+		fprintf(p_fp,"\n");
+		fprintf(m_fp,"\n");
+		fprintf(g_fp,"\n");
+		fprintf(k_fp,"\n");
+		fprintf(sigma_fp,"\n");
 	}
 	
-	fclose(p_file);
-	fclose(m_file);
-	fclose(g_file);
-	fclose(k_file);
-	fclose(sigma_file);
+	fclose(p_fp);
+	fclose(m_fp);
+	fclose(g_fp);
+	fclose(k_fp);
+	fclose(sigma_fp);
+	gettimeofday(&tend,NULL);
+
+	usecs = (tend.tv_sec - tstart.tv_sec) *1000000 + (tend.tv_usec - tstart.tv_usec);
+	thyme = usecs*1e-6;
+	printf("Time to write files: %.5e\n",thyme);
 	
 	//ofstream data_stream_write(P_file);
 	//data_stream_write.precision(16);

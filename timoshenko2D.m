@@ -36,19 +36,23 @@ a = 1.0;
 Omega = 0.0;
 %}
 
+linearization = 1;
+
 rho = 7850;
 E = 2.1e11;
-A = 1e-4;
-I = 0.01*0.01^3/12;
-L = sqrt(70^2*I/A);%0.20207;
+depth = 1e-2;
+breadth = 1e-2;
+A = depth*breadth;
+I = breadth*(depth^3)/12;
+L = 70*sqrt(I/A)
 T_squared = (rho*A*L^4)/(E*I);
-T = sqrt(T_squared);
+T = sqrt(T_squared)
 delta = 0;
-gamma = 0;
+gamma = 2
 a = delta*L;
-Omega = gamma*T;
-dofs = 5;
-% alpha = sqrt(A*L^2/I);
+Omega = gamma/T%1/(T/gamma/10^floor(log10(T)))
+% dofs = 5;
+% alpha = sqrt(A*L^2/I)
 
 %% build material
 fmat =fopen('mat.txt','w');
@@ -58,9 +62,8 @@ fprintf(fmat,'geometry_file = elements.txt\n');
 fclose(fmat);
 
 %% build geometry
-num_elts = 10;
-depth = 1e-2;
-breadth = 1e-2;
+num_elts = 100;
+
 fgeo = fopen('elements.txt','w');
 for idx=1:num_elts
     fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx,depth,breadth,idx,idx+1);
@@ -100,7 +103,7 @@ fclose(fh);
 tic;
 system([base,'/analyzer']);
 tf = toc;
-fprintf(1,'assembly time: %.5e\n',tf);
+fprintf(1,'<matlab> c execution time: %.5e\n',tf);
 %% Load stiffness and mass matrices
 tic;
 K = load('K.dat');
@@ -116,7 +119,7 @@ fprintf(1,'data load time: %.5e\n',tf);
 
 %% Establish polynomial eigenvalue coefficient matrices
 X0 = (K+Omega^2*(Sigma-P));
-X1 = 2*G*Omega*1i;
+X1 = 2*G*Omega;
 X2 = M;
 
 %% Adimensionalize
@@ -141,9 +144,9 @@ fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
 % 
 % X1 = X1.*time_rescaling_factor;
 % X2 = X2.*time_rescaling_factor;
-% % % KK=sparse(KK); MM = sparse(MM);
-% % 
-% % % New scales
+% KK=sparse(KK); MM = sparse(MM);
+
+% % New scales
 % X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
 % X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
 % fprintf(1,'New-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
@@ -157,21 +160,35 @@ fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
 %% Solve the generalized eigenvalue problem
 % u(v,t) = v*sin(omega*t)
 % [M](w^2)v -[K]v=0
-Z = zeros(size(K));
+
 tic;
-% L4 linearization
-A = [Z,-X0; X2, Z];
-B = [X2, X1; Z, X2];
-% % L3 linearization
-% A = [X0,Z; X1, X0];
-% B = [Z, -X0; X2, Z];
-%  [shape,omega] = polyeig(-X0,-X1,X2);
-[shape,omega] = eig(A,B);
-% omega_sqr = diag(omega_sqr);
-% omega = sqrt(omega_sqr);%*sqrt(time_rescaling_factor);
-evals = diag(omega);
-checkvals = (omega>0); omega = omega(checkvals);
-%omega = imag(evals);
+
+if(linearization==1)
+    % std linearization
+    [shape,omega] = polyeig(-X0,-X1,X2);
+    % omega = omega.*sqrt(time_rescaling_factor);
+    evals = omega;
+elseif(linearization==3)
+    % L4 linearization
+    Z = zeros(size(K));
+    A = [Z,-X0; X2, Z];
+    B = [X2, X1; Z, X2];
+    [shape,omega] = eig(A,B);
+    evals = diag(omega);
+    omega = evals;
+elseif(linearization==4)
+    % L3 linearization
+    Z = zeros(size(K));
+    A = [X0,Z; X1, X0];
+    B = [Z, -X0; X2, Z];
+    [shape,omega] = eig(A,B);
+    evals = diag(omega);
+    omega = evals;
+end
+
+omega = abs(omega);%(omega>0);
+omega = sort(omega,'ascend');
+
 freqs = omega./(2*pi);%.*sqrt(time_rescaling_factor);
 [freqs,ix] = sort(abs(freqs),'ascend');
 omega = omega(ix);
@@ -209,4 +226,5 @@ assignin('base','X2',X2);
 % fprintf(1,'Eigenvalue error (SSE): %.5e\n',result);
 
 % fprintf(1,'git test 2\n');
+plot(real(evals),imag(evals),'*');
 end
