@@ -36,21 +36,37 @@ a = 1.0;
 Omega = 0.0;
 %}
 
-linearization = 1;
+linearization = 3;
 
 rho = 7850;
-E = 2.1e11;
-depth = 1e-2;
-breadth = 1e-2;
+E = 210e9;
+depth = 2;
+breadth = 2;
 A = depth*breadth;
 I = breadth*(depth^3)/12;
-L = 70*sqrt(I/A)
+L = 70*sqrt(I/A);
 T_squared = (rho*A*L^4)/(E*I);
-T = sqrt(T_squared)
+T = sqrt(T_squared);
 delta = 0;
-gamma = 2
+gamma = 0;
 a = delta*L;
-Omega = gamma/T%1/(T/gamma/10^floor(log10(T)))
+Omega = gamma/T;
+
+props.rho = rho;
+props.E = E;
+props.depth = depth;
+props.breadth = breadth;
+props.A = A;
+props.I = I;
+props.L = L;
+props.T_squared = T_squared;
+props.T = T;
+props.delta = delta;
+props.gamma = gamma;
+props.a = a;
+props.Omega = Omega;
+
+display(props);
 % dofs = 5;
 % alpha = sqrt(A*L^2/I)
 

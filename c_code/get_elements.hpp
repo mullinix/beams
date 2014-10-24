@@ -386,7 +386,7 @@ void print_inputs(input inputs) {
 void print_materials(vector<material> materials) {
 	for(int i=0; i<materials.size(); i++) {
 		cout << "material[" << i << "]:" << endl;
-		cout << "\tE: " << materials[i].E << "GPa"<< endl;
+		cout << "\tE: " << materials[i].E*1e-9 << "GPa"<< endl;
 		cout << "\tnu: " << materials[i].nu << endl;
 		cout << "\tstress_yield: " << materials[i].stress_yield << endl;
 		cout << "\tstress_ultimate: " << materials[i].stress_ultimate << endl;
