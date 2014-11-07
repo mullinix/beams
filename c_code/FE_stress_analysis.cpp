@@ -173,6 +173,7 @@ int main(int argc, char** argv) {
 	printf("Time to build and assemble: %.5e\n",thyme);
 	
 	gettimeofday(&tstart,NULL);
+	
 	p_fp = fopen(P_file,"w");
 	m_fp = fopen(M_file,"w");
 	g_fp = fopen(G_file,"w");
@@ -220,41 +221,43 @@ int main(int argc, char** argv) {
 	fclose(g_fp);
 	fclose(k_fp);
 	fclose(sigma_fp);
+
+	
+	/*ofstream data_stream_write(P_file);
+	data_stream_write.precision(16);
+	data_stream_write.setf(ios::scientific);
+	data_stream_write << P << endl;
+	data_stream_write.close();
+	
+	data_stream_write.open(M_file);
+	data_stream_write.precision(16);
+	data_stream_write.setf(ios::scientific);
+	data_stream_write << M << endl;
+	data_stream_write.close();
+	
+	data_stream_write.open(G_file);
+	data_stream_write.precision(16);
+	data_stream_write.setf(ios::scientific);
+	data_stream_write << G << endl;
+	data_stream_write.close();
+	
+	data_stream_write.open(K_file);
+	data_stream_write.precision(16);
+	data_stream_write.setf(ios::scientific);
+	data_stream_write << K << endl;
+	data_stream_write.close();
+
+	data_stream_write.open(Sigma_file);
+	data_stream_write.precision(16);
+	data_stream_write.setf(ios::scientific);
+	data_stream_write << Sigma << endl;
+	data_stream_write.close();*/
+	
 	gettimeofday(&tend,NULL);
 
 	usecs = (tend.tv_sec - tstart.tv_sec) *1000000 + (tend.tv_usec - tstart.tv_usec);
 	thyme = usecs*1e-6;
 	printf("Time to write files: %.5e\n",thyme);
-	
-	//ofstream data_stream_write(P_file);
-	//data_stream_write.precision(16);
-	//data_stream_write.setf(ios::scientific);
-	//data_stream_write << P << endl;
-	//data_stream_write.close();
-	
-	//data_stream_write.open(M_file);
-	//data_stream_write.precision(16);
-	//data_stream_write.setf(ios::scientific);
-	//data_stream_write << M << endl;
-	//data_stream_write.close();
-	
-	//data_stream_write.open(G_file);
-	//data_stream_write.precision(16);
-	//data_stream_write.setf(ios::scientific);
-	//data_stream_write << G << endl;
-	//data_stream_write.close();
-	
-	//data_stream_write.open(K_file);
-	//data_stream_write.precision(16);
-	//data_stream_write.setf(ios::scientific);
-	//data_stream_write << K << endl;
-	//data_stream_write.close();
-
-	//data_stream_write.open(Sigma_file);
-	//data_stream_write.precision(16);
-	//data_stream_write.setf(ios::scientific);
-	//data_stream_write << Sigma << endl;
-	//data_stream_write.close();
 	
 	return 0;
 }
@@ -476,9 +479,9 @@ void build_shapes(double l) {
 }
 
 void build_p(double l, double rho, double A) {
-	MatrixXd p_mx = N_u*N_u.transpose() + N_v*N_v.transpose();
+	//MatrixXd p_mx = N_u*N_u.transpose() + N_v*N_v.transpose();
 	p = MatrixXd::Zero(elt_dofs,elt_dofs);
-	double val;
+	/*double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			if(p_mx(i,j)) {
@@ -493,13 +496,24 @@ void build_p(double l, double rho, double A) {
 				p(i,j) = rho*A*val;
 			}
 		}
-	}
+	}*/
+	p << 140,     0,      0, 0, 0,  70,     0,      0, 0, 0,
+	       0,   156,   22*l, 0, 0,   0,    54,  -13*l, 0, 0,
+	       0,  22*l,  4*l*l, 0, 0,   0,  13*l, -3*l*l, 0, 0,
+	       0,     0,      0, 0, 0,   0,     0,      0, 0, 0,
+	       0,     0,      0, 0, 0,   0,     0,      0, 0, 0,
+	      70,     0,      0, 0, 0, 140,     0,      0, 0, 0,
+	       0,    54,   13*l, 0, 0,   0,   156,  -22*l, 0, 0,
+	       0, -13*l, -3*l*l, 0, 0,   0, -22*l,  4*l*l, 0, 0,
+	       0,     0,      0, 0, 0,   0,     0,      0, 0, 0,
+	       0,     0,      0, 0, 0,   0,     0,      0, 0, 0;
+	p *= l*rho*A/420;
 }
 
 void build_m(double l, double rho, double A) {
-	MatrixXd m_mx = N_w*N_w.transpose();
+	//MatrixXd m_mx = N_w*N_w.transpose();
 	m = MatrixXd::Zero(elt_dofs,elt_dofs);
-	double val;
+	/*double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			if(m_mx(i,j)) {
@@ -515,12 +529,25 @@ void build_m(double l, double rho, double A) {
 			}
 		}
 	}
-	m += p;
+	m += p;*/
+	m << 140,     0,      0,     0,      0,  70,     0,      0,     0,      0,
+	       0,   156,   22*l,     0,      0,   0,    54,  -13*l,     0,      0,
+	       0,  22*l,  4*l*l,     0,      0,   0,  13*l, -3*l*l,     0,      0,
+	       0,     0,      0,   156,   22*l,   0,     0,      0,    54,  -13*l,
+	       0,     0,      0,  22*l,  4*l*l,   0,     0,      0,  13*l, -3*l*l,
+	      70,     0,      0,     0,      0, 140,     0,      0,     0,      0,
+	       0,    54,   13*l,     0,      0,   0,   156,  -22*l,     0,      0,
+	       0, -13*l, -3*l*l,     0,      0,   0, -22*l,  4*l*l,     0,      0,
+	       0,     0,      0,    54,   13*l,   0,     0,      0,   156,  -22*l,
+	       0,     0,      0, -13*l, -3*l*l,   0,     0,      0, -22*l,  4*l*l;
+	       
+	m *= l*rho*A/420;
 }
 
 void build_g(double l, double rho, double A) {
 	MatrixXd g_mx = N_v*N_u.transpose()-N_u*N_v.transpose();
 	g = MatrixXd::Zero(elt_dofs,elt_dofs);
+	/*
 	double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
@@ -536,14 +563,27 @@ void build_g(double l, double rho, double A) {
 			g(i,j) = g_mx(i,j)*rho*A*val;
 		}
 	}
+	* */
+	g <<    0,  -21,  -3*l,  0,  0,    0,  -9,  2*l,  0,  0,
+		   21,    0,     0,  0,  0,    9,   0,    0,  0,  0,
+		  3*l,    0,     0,  0,  0,  2*l,   0,    0,  0,  0,
+		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0,
+		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0,
+		    0,   -9,  -2*l,  0,  0,    0, -21,  3*l,  0,  0,
+		    9,    0,     0,  0,  0,   21,   0,    0,  0,  0,
+		 -2*l,    0,     0,  0,  0, -3*l,   0,    0,  0,  0,
+		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0,
+		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0;
+		    
+	g*=(l*rho*A/60.0);
 }
 
 void build_k(double l, double E, double A, double Iyy, double Izz){
-	MatrixXd u_mx = N_u*N_u.transpose();
+	/*MatrixXd u_mx = N_u*N_u.transpose();
 	MatrixXd v_mx = N_v*N_v.transpose();
-	MatrixXd w_mx = N_w*N_w.transpose();
+	MatrixXd w_mx = N_w*N_w.transpose();*/
 	k = MatrixXd::Zero(elt_dofs,elt_dofs);
-	double val;
+	/*double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			// instead of logic, we need the (-) values...
@@ -564,13 +604,27 @@ void build_k(double l, double E, double A, double Iyy, double Izz){
 			k(i,j) += v_mx(i,j)*E*Izz*val;
 			k(i,j) += w_mx(i,j)*E*Iyy*val;
 		}
-	}
+	}*/
+	k <<  A*l*l,       0,         0,       0,         0,  -A*l*l,        0,         0,        0,         0,
+	          0,  12*Izz,   6*Izz*l,       0,         0,       0,  -12*Izz,   6*Izz*l,        0,         0,
+	          0, 6*Izz*l, 4*Izz*l*l,       0,         0,       0, -6*Izz*l, 2*Izz*l*l,        0,         0,
+	          0,       0,         0,  12*Iyy,   6*Iyy*l,       0,        0,         0,  -12*Iyy,   6*Iyy*l,
+	          0,       0,         0, 6*Iyy*l, 4*Iyy*l*l,       0,        0,         0, -6*Iyy*l, 2*Iyy*l*l,
+	     -A*l*l,       0,         0,       0,         0,   A*l*l,        0,         0,        0,         0, 
+	          0, -12*Izz,  -6*Izz*l,       0,         0,       0,   12*Izz,  -6*Izz*l,        0,         0,
+	          0, 6*Izz*l, 2*Izz*l*l,       0,         0,       0, -6*Izz*l, 4*Izz*l*l,        0,         0,
+	          0,       0,         0, -12*Iyy,  -6*Iyy*l,       0,        0,         0,   12*Iyy,  -6*Iyy*l,
+	          0,       0,         0, 6*Iyy*l, 2*Iyy*l*l,       0,        0,         0, -6*Iyy*l, 4*Iyy*l*l;
+	     
+	k *= E/(l*l*l);
+	         
 }
 
 void build_sigma(double l, double L, double rho, double A, double a, double Omega){
-	MatrixXd v_mx = N_v*N_v.transpose();
-	MatrixXd w_mx = N_w*N_w.transpose();
+	//MatrixXd v_mx = N_v*N_v.transpose();
+	//MatrixXd w_mx = N_w*N_w.transpose();
 	sigma = MatrixXd::Zero(elt_dofs,elt_dofs);
+	/*
 	double val;
 	double mult_vec[3] = { a*L+0.5*L*L, -a, -0.5};
 	for (int i=0; i<elt_dofs; i++ ){
@@ -590,6 +644,26 @@ void build_sigma(double l, double L, double rho, double A, double a, double Omeg
 			sigma(i,j) += w_mx(i,j)*val*Omega*Omega*A*rho;
 		}
 	}
+	* */
+	double a1 = 420*(3*L*L/5+6*a*L/5)/l-72*l-252*a;
+	double a2 = 21*L*L+42*a*L-15*l*l-42*a*l;
+	double a3 = 2*l*(14*L*L+28*a*L-2*l*l-7*a*l);
+	double b1 = 21*L*L+42*a*L+6*l*l;
+	double b2 = -l*(7*L*L+14*a*L-3*l*l-7*a*l);
+	double b3 = 2*l*(14*L*L+28*a*L-9*l*l-21*a*l);
+	
+	sigma << 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+			 0,  a1,  a2,   0,   0,   0, -a1,  b1,   0,   0,
+			 0,  a2,  a3,   0,   0,   0, -a2,  b2,   0,   0,
+			 0,   0,   0,  a1,  a2,   0,   0,   0, -a1,  b1,
+			 0,   0,   0,  a2,  a3,   0,   0,   0, -a2,  b2,
+			 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+			 0, -a1, -a2,   0,   0,   0,  a1, -b1,   0,   0,
+			 0,  b1,  b2,   0,   0,   0, -b1,  b3,   0,   0,
+			 0,   0,   0, -a1, -a2,   0,   0,   0,  a1, -b1,
+			 0,   0,   0,  b1,  b2,   0,   0,   0, -b1,  b3;
+			 
+	sigma *= (rho*A/420.0);
 }
 
 void poly_diff(double poly[], int n, double poly_return[]) {

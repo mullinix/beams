@@ -36,12 +36,12 @@ a = 1.0;
 Omega = 0.0;
 %}
 
-linearization = 3;
+linearization = 1;
 
-rho = 7850;
+rho = 7820;
 E = 210e9;
-depth = 2;
-breadth = 2;
+depth = 0.25;
+breadth = 0.25;
 A = depth*breadth;
 I = breadth*(depth^3)/12;
 L = 70*sqrt(I/A);
@@ -70,6 +70,9 @@ display(props);
 % dofs = 5;
 % alpha = sqrt(A*L^2/I)
 
+delete('*.dat');
+delete('*.txt');
+
 %% build material
 fmat =fopen('mat.txt','w');
 fprintf(fmat,'E = %.15e\n',E);
@@ -96,6 +99,14 @@ end
 fclose(fnodes);
 
 %% build loads
+floads = fopen('loads.txt','w');
+fprintf(floads,'1\t0\t0,-1,0\n');
+fclose(floads);
+
+%% build bcs
+fbcs = fopen('bcs.txt','w');
+fprintf(fbcs,'1\t1,1,1,1,1\n');
+fclose(fbcs);
 
 %% write inputs file
 
@@ -136,7 +147,7 @@ fprintf(1,'data load time: %.5e\n',tf);
 %% Establish polynomial eigenvalue coefficient matrices
 X0 = (K+Omega^2*(Sigma-P));
 X1 = 2*G*Omega;
-X2 = M;
+X2 = -M;
 
 %% Adimensionalize
 X1 = X1./T;
@@ -203,6 +214,7 @@ elseif(linearization==4)
 end
 
 omega = abs(omega);%(omega>0);
+% omega = omega.*T;
 omega = sort(omega,'ascend');
 
 freqs = omega./(2*pi);%.*sqrt(time_rescaling_factor);
@@ -224,6 +236,8 @@ assignin('base','Sigma',Sigma);
 assignin('base','X0',X0);
 assignin('base','X1',X1);
 assignin('base','X2',X2);
+assignin('base','T',T);
+assignin('base','props',props);
 % assignin('base','time_rescaling_factor',time_rescaling_factor);
 % assignin('base','space_rescaling_factor',space_rescaling_factor);
 
