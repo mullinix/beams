@@ -1,4 +1,7 @@
-function timoshenko2D()
+function err = timoshenko2D()%params)
+
+% b = params(1);
+% rho_E = params(2);
 
 %% System parameters
 % L = 0.1524; % length of beam [m] (0.45)
@@ -38,15 +41,18 @@ Omega = 0.0;
 
 linearization = 1;
 
-rho = 7820;
-E = 210e9;
-depth = 0.25;
-breadth = 0.25;
+rho = 7820;% sqrt(rho_E);%
+E = 210e9;% 1/sqrt(rho_E);%
+depth = 0.25;% b;% 
+breadth = 0.25;% b;%
 A = depth*breadth;
 I = breadth*(depth^3)/12;
-L = 70*sqrt(I/A);
-T_squared = (rho*A*L^4)/(E*I);
-T = sqrt(T_squared);
+alpha = 70;
+L = alpha*sqrt(I/A);
+T_squared = (rho*A*L^4)/(E*I);%T*T;%
+T = sqrt(T_squared);%alpha*L*sqrt(rho_E);%
+
+
 delta = 0;
 gamma = 0;
 a = delta*L;
@@ -150,8 +156,8 @@ X1 = 2*G*Omega;
 X2 = -M;
 
 %% Adimensionalize
-X1 = X1./T;
-X2 = X2./T_squared;
+% X1 = X1./T;
+% X2 = X2./T_squared;
 
 %% Apply rescaling
 % Original scales of matrices
@@ -256,5 +262,7 @@ assignin('base','props',props);
 % fprintf(1,'Eigenvalue error (SSE): %.5e\n',result);
 
 % fprintf(1,'git test 2\n');
-plot(real(evals),imag(evals),'*');
+% plot(real(evals),imag(evals),'*');
+err = (4.97-omega(1))^2;
+display(err);
 end
