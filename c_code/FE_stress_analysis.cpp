@@ -19,18 +19,18 @@ using Eigen::VectorXd;
 /* warn compiler about user fns  */
 
 // shape functions
-void build_shapes(double l);
+void build_shapes(double xe, double xe1);
 void poly_diff(double poly[], int n, double poly_return[]);
 void poly_val(double poly[], int n, double x, double poly_return[]);
 void poly_shift(double poly[], int n);
 double poly_int(double poly[], int n, double a, double b);
 void poly_mult(double poly1[],double poly2[], int m, int n, double poly_return[]);
 void mult_vecs(int i, int j,vector<VectorXd> input_mx,double arry_out[]);
-void build_p(double l, double rho, double A);
-void build_m(double l, double rho, double A);
-void build_g(double l, double rho, double A);
-void build_k(double l, double E, double A, double Iyy, double Izz);
-void build_sigma(double l, double L, double rho, double A, double a, double Omega);
+void build_p(double xe, double xe1, double rho, double A);
+void build_m(double xe, double xe1, double rho, double A);
+void build_g(double xe, double xe1, double rho, double A);
+void build_k(double xe, double xe1, double E, double A, double Iyy, double Izz);
+void build_sigma(double xe, double xe1, double len, double rho, double A, double a, double Omega);
 void build_global_matrices(void);
 void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
 void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove);
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 		return return_error;
 	gettimeofday(&tend,NULL);
 	// print what we have read in.
-	print_structs();
+	//print_structs();
 	usecs = (tend.tv_sec - tstart.tv_sec) *1000000 + (tend.tv_usec - tstart.tv_usec);
 	thyme = usecs*1e-6;
 	printf("Time to read inputs: %.5e\n",thyme);
@@ -262,8 +262,10 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void build_shapes(double l) {
+void build_shapes(double xe, double xe1) {
 	//build u shape vectors
+	double a=0;//xe
+	double b=xe1-xe;//xe1;//
 	int u_dofs = inputs.displacement_dofs[0];
 	int dofs = u_dofs*2;
 	u_elt_dofs=dofs;
@@ -277,8 +279,8 @@ void build_shapes(double l) {
 	for(int i=0; i<dofs; i++) {
 		poly[i]=1.0;
 	}
-	poly_val(poly,dofs,0.0,poly0);
-	poly_val(poly,dofs,l,polyL);
+	poly_val(poly,dofs,a, poly0);//0.0,poly0);
+	poly_val(poly,dofs,b,polyL);//l,polyL);
 	if(dofs==2) {
 		for(int i=0; i<dofs; i++) {
 			U(0,i) = poly0[i];
@@ -287,9 +289,9 @@ void build_shapes(double l) {
 	}
 	else {
 		poly_diff(poly,dofs,poly_der);
-		poly_val(poly_der,dofs,0.0,poly_der0);
+		poly_val(poly_der,dofs,a,poly_der0);//0.0,poly_der0);
 		poly_shift(poly_der0,dofs);
-		poly_val(poly_der,dofs,l,poly_derL);
+		poly_val(poly_der,dofs,b,poly_derL);//l,poly_derL);
 		poly_shift(poly_derL,dofs);
 		for(int i=0; i<dofs; i++) {
 			U(0,i) = poly0[i];
@@ -308,8 +310,8 @@ void build_shapes(double l) {
 	for(int i=0; i<dofs; i++) {
 		poly[i]=1.0;
 	}
-	poly_val(poly,dofs,0.0,poly0);
-	poly_val(poly,dofs,l,polyL);
+	poly_val(poly,dofs,a,poly0);
+	poly_val(poly,dofs,b,polyL);
 	if(dofs==2) {
 		for(int i=0; i<dofs; i++) {
 			V(0,i) = poly0[i];
@@ -318,9 +320,9 @@ void build_shapes(double l) {
 	}
 	else {
 		poly_diff(poly,dofs,poly_der);
-		poly_val(poly_der,dofs,0.0,poly_der0);
+		poly_val(poly_der,dofs,a,poly_der0);
 		poly_shift(poly_der0,dofs);
-		poly_val(poly_der,dofs,l,poly_derL);
+		poly_val(poly_der,dofs,b,poly_derL);
 		poly_shift(poly_derL,dofs);
 		for(int i=0; i<dofs; i++) {
 			V(0,i) = poly0[i];
@@ -337,8 +339,8 @@ void build_shapes(double l) {
 	for(int i=0; i<dofs; i++) {
 		poly[i]=1.0;
 	}
-	poly_val(poly,dofs,0.0,poly0);
-	poly_val(poly,dofs,l,polyL);
+	poly_val(poly,dofs,a,poly0);
+	poly_val(poly,dofs,b,polyL);
 	if(dofs==2) {
 		for(int i=0; i<dofs; i++) {
 			W(0,i) = poly0[i];
@@ -347,9 +349,9 @@ void build_shapes(double l) {
 	}
 	else {
 		poly_diff(poly,dofs,poly_der);
-		poly_val(poly_der,dofs,0.0,poly_der0);
+		poly_val(poly_der,dofs,a,poly_der0);
 		poly_shift(poly_der0,dofs);
-		poly_val(poly_der,dofs,l,poly_derL);
+		poly_val(poly_der,dofs,b,poly_derL);
 		poly_shift(poly_derL,dofs);
 		for(int i=0; i<dofs; i++) {
 			W(0,i) = poly0[i];
@@ -478,10 +480,11 @@ void build_shapes(double l) {
 	return;
 }
 
-void build_p(double l, double rho, double A) {
-	//MatrixXd p_mx = N_u*N_u.transpose() + N_v*N_v.transpose();
+void build_p(double xe, double xe1, double rho, double A) {
 	p = MatrixXd::Zero(elt_dofs,elt_dofs);
-	/*double val;
+	/*
+	MatrixXd p_mx = N_u*N_u.transpose() + N_v*N_v.transpose();
+	double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			if(p_mx(i,j)) {
@@ -492,11 +495,14 @@ void build_p(double l, double rho, double A) {
 					vec[idx]=0;
 				}
 				mult_vecs(i,j,N_uvw,vec);
-				val = poly_int(vec, m+n-1, 0.0, l);
+				val = poly_int(vec, m+n-1, xe, xe1);
 				p(i,j) = rho*A*val;
 			}
 		}
-	}*/
+	}
+	*/
+	
+	double l = xe1-xe;
 	p << 140,     0,      0, 0, 0,  70,     0,      0, 0, 0,
 	       0,   156,   22*l, 0, 0,   0,    54,  -13*l, 0, 0,
 	       0,  22*l,  4*l*l, 0, 0,   0,  13*l, -3*l*l, 0, 0,
@@ -508,12 +514,16 @@ void build_p(double l, double rho, double A) {
 	       0,     0,      0, 0, 0,   0,     0,      0, 0, 0,
 	       0,     0,      0, 0, 0,   0,     0,      0, 0, 0;
 	p *= l*rho*A/420;
+	
+	
 }
 
-void build_m(double l, double rho, double A) {
-	//MatrixXd m_mx = N_w*N_w.transpose();
+void build_m(double xe, double xe1, double rho, double A) {
 	m = MatrixXd::Zero(elt_dofs,elt_dofs);
-	/*double val;
+	
+	/*
+	MatrixXd m_mx = N_w*N_w.transpose();
+	double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			if(m_mx(i,j)) {
@@ -524,12 +534,15 @@ void build_m(double l, double rho, double A) {
 					vec[idx]=0;
 				}
 				mult_vecs(i,j,N_uvw,vec);
-				val = poly_int(vec, m_sz+n_sz-1, 0.0, l);
+				val = poly_int(vec, m_sz+n_sz-1, xe, xe1);//0.0, l);
 				m(i,j) = rho*A*val;
 			}
 		}
 	}
-	m += p;*/
+	m += p;
+	*/
+	
+	double l = xe1-xe;
 	m << 140,     0,      0,     0,      0,  70,     0,      0,     0,      0,
 	       0,   156,   22*l,     0,      0,   0,    54,  -13*l,     0,      0,
 	       0,  22*l,  4*l*l,     0,      0,   0,  13*l, -3*l*l,     0,      0,
@@ -542,12 +555,14 @@ void build_m(double l, double rho, double A) {
 	       0,     0,      0, -13*l, -3*l*l,   0,     0,      0, -22*l,  4*l*l;
 	       
 	m *= l*rho*A/420;
+	
+	
 }
 
-void build_g(double l, double rho, double A) {
-	MatrixXd g_mx = N_v*N_u.transpose()-N_u*N_v.transpose();
+void build_g(double xe, double xe1, double rho, double A) {
 	g = MatrixXd::Zero(elt_dofs,elt_dofs);
 	/*
+	MatrixXd g_mx = N_v*N_u.transpose()-N_u*N_v.transpose();
 	double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
@@ -559,31 +574,39 @@ void build_g(double l, double rho, double A) {
 				vec[idx]=0;
 			}
 			mult_vecs(i,j,N_uvw,vec);
-			val = poly_int(vec, m_sz+n_sz-1, 0.0, l);
+			val = poly_int(vec, m_sz+n_sz-1, xe, xe1);
 			g(i,j) = g_mx(i,j)*rho*A*val;
 		}
 	}
-	* */
-	g <<    0,  -21,  -3*l,  0,  0,    0,  -9,  2*l,  0,  0,
-		   21,    0,     0,  0,  0,    9,   0,    0,  0,  0,
-		  3*l,    0,     0,  0,  0,  2*l,   0,    0,  0,  0,
-		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0,
-		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0,
-		    0,   -9,  -2*l,  0,  0,    0, -21,  3*l,  0,  0,
-		    9,    0,     0,  0,  0,   21,   0,    0,  0,  0,
-		 -2*l,    0,     0,  0,  0, -3*l,   0,    0,  0,  0,
-		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0,
-		    0,    0,     0,  0,  0,    0,   0,    0,  0,  0;
+	*/
+		
+	double l = xe1-xe;
+	double aa = 21;
+	double bb = 3*l;
+	double cc = 2*l;
+	double dd = 9;
+	g <<    0, -aa, -bb,   0,   0,   0, -dd,  cc,   0,   0,
+		   aa,   0,   0,   0,   0,  dd,   0,   0,   0,   0,
+		   bb,   0,   0,   0,   0,  cc,   0,   0,   0,   0,
+		    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+		    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+		    0, -dd, -cc,   0,   0,   0, -aa,  bb,   0,   0,
+		   dd,   0,   0,   0,   0,  aa,   0,   0,   0,   0,
+		  -cc,   0,   0,   0,   0, -bb,   0,   0,   0,   0,
+		    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+		    0,   0,   0,   0,   0,   0,   0,   0,   0,   0;
 		    
 	g*=(l*rho*A/60.0);
+	
 }
 
-void build_k(double l, double E, double A, double Iyy, double Izz){
-	/*MatrixXd u_mx = N_u*N_u.transpose();
-	MatrixXd v_mx = N_v*N_v.transpose();
-	MatrixXd w_mx = N_w*N_w.transpose();*/
+void build_k(double xe, double xe1, double E, double A, double Iyy, double Izz){
 	k = MatrixXd::Zero(elt_dofs,elt_dofs);
-	/*double val;
+	/*
+	MatrixXd u_mx = N_u*N_u.transpose();
+	MatrixXd v_mx = N_v*N_v.transpose();
+	MatrixXd w_mx = N_w*N_w.transpose();
+	double val;
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			// instead of logic, we need the (-) values...
@@ -594,17 +617,20 @@ void build_k(double l, double E, double A, double Iyy, double Izz){
 				vec[idx]=0;
 			}
 			mult_vecs(i,j,N_uvw_x,vec);
-			val = poly_int(vec, m_sz+n_sz-1, 0.0, l);
+			val = poly_int(vec, m_sz+n_sz-1, xe,xe1);//0.0, l);
 			k(i,j) += u_mx(i,j)*E*A*val;
 			for (int idx=0;idx<m_sz+n_sz-1;idx++) {
 				vec[idx]=0;
 			}
 			mult_vecs(i,j,N_uvw_xx,vec);
-			val = poly_int(vec, m_sz+n_sz-1, 0.0, l);
+			val = poly_int(vec, m_sz+n_sz-1, xe,xe1);//0.0, l);
 			k(i,j) += v_mx(i,j)*E*Izz*val;
 			k(i,j) += w_mx(i,j)*E*Iyy*val;
 		}
-	}*/
+	}
+	*/
+	
+	double l = xe1-xe;
 	k <<  A*l*l,       0,         0,       0,         0,  -A*l*l,        0,         0,        0,         0,
 	          0,  12*Izz,   6*Izz*l,       0,         0,       0,  -12*Izz,   6*Izz*l,        0,         0,
 	          0, 6*Izz*l, 4*Izz*l*l,       0,         0,       0, -6*Izz*l, 2*Izz*l*l,        0,         0,
@@ -617,14 +643,17 @@ void build_k(double l, double E, double A, double Iyy, double Izz){
 	          0,       0,         0, 6*Iyy*l, 2*Iyy*l*l,       0,        0,         0, -6*Iyy*l, 4*Iyy*l*l;
 	     
 	k *= E/(l*l*l);
+	
 	         
 }
 
-void build_sigma(double l, double L, double rho, double A, double a, double Omega){
-	//MatrixXd v_mx = N_v*N_v.transpose();
-	//MatrixXd w_mx = N_w*N_w.transpose();
+void build_sigma(double xe, double xe1, double len, double rho, double A, double a, double Omega){
 	sigma = MatrixXd::Zero(elt_dofs,elt_dofs);
+	
 	/*
+	MatrixXd v_mx = N_v*N_v.transpose();
+	MatrixXd w_mx = N_w*N_w.transpose();
+	double L = len;
 	double val;
 	double mult_vec[3] = { a*L+0.5*L*L, -a, -0.5};
 	for (int i=0; i<elt_dofs; i++ ){
@@ -639,31 +668,56 @@ void build_sigma(double l, double L, double rho, double A, double a, double Omeg
 			}
 			mult_vecs(i,j,N_uvw_x,vec);
 			poly_mult(vec,mult_vec,m_sz+n_sz-1,3,vec2);
-			val = poly_int(vec2, m_sz+n_sz-1, 0.0, l);
-			sigma(i,j) += v_mx(i,j)*val*Omega*Omega*A*rho;
-			sigma(i,j) += w_mx(i,j)*val*Omega*Omega*A*rho;
+			val = poly_int(vec2, m_sz+n_sz-1,xe,xe1);// 0.0, l);
+			sigma(i,j) += v_mx(i,j)*val*A*rho;
+			sigma(i,j) += w_mx(i,j)*val*A*rho;
 		}
 	}
-	* */
+	*/
+	
+	/*
+	double L = len;
+	double l = xe1-xe;
 	double a1 = 420*(3*L*L/5+6*a*L/5)/l-72*l-252*a;
 	double a2 = 21*L*L+42*a*L-15*l*l-42*a*l;
 	double a3 = 2*l*(14*L*L+28*a*L-2*l*l-7*a*l);
 	double b1 = 21*L*L+42*a*L+6*l*l;
 	double b2 = -l*(7*L*L+14*a*L-3*l*l-7*a*l);
 	double b3 = 2*l*(14*L*L+28*a*L-9*l*l-21*a*l);
+	*/
+	double L = len;
+	double l = xe1-xe;
+	double aa = L*L-xe*xe;
+	double bb = 2*a*(L-xe);
+	double cc = l*(a+xe);
+	// (2,2) = (4,4) = (7,7) = (9,9) = -(2,7) = -(7,2) = -(4,9) = -(9,4)
+	double a22 = -72*pow(l,2)+252*(aa+bb-cc);
+	// (2,3) = (3,2) = (4,5) = (5,4) = -(3,7) = -(7,3) = -(5,9) = -(9,5)
+	double b23 = -15*pow(l,3)+21*l*(aa+bb-2*cc);
+	// (2,8) = (8,2) = (4,10) = (10,4) = -(7,8) = -(8,7) = -(9,10) = -(10,9)
+	double c28 = 6*pow(l,3)+21*l*(aa+bb);
+	// (3,3) = (5,5)
+	double d33 = -4*pow(l,4)+14*l*l*(2*aa+2*bb-cc);
+	// (3,8) = (8,3) = (5,10) = (10,5)
+	double e38 = 3*pow(l,4)+7*l*l*(-aa-bb+cc);
+	// (8,8) = (10,10)             
+	double f88 = -18*pow(l,4)+14*l*l*(2*aa+2*bb-3*cc);
 	
-	sigma << 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-			 0,  a1,  a2,   0,   0,   0, -a1,  b1,   0,   0,
-			 0,  a2,  a3,   0,   0,   0, -a2,  b2,   0,   0,
-			 0,   0,   0,  a1,  a2,   0,   0,   0, -a1,  b1,
-			 0,   0,   0,  a2,  a3,   0,   0,   0, -a2,  b2,
-			 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-			 0, -a1, -a2,   0,   0,   0,  a1, -b1,   0,   0,
-			 0,  b1,  b2,   0,   0,   0, -b1,  b3,   0,   0,
-			 0,   0,   0, -a1, -a2,   0,   0,   0,  a1, -b1,
-			 0,   0,   0,  b1,  b2,   0,   0,   0, -b1,  b3;
+	
+	sigma << 0,   0,    0,    0,    0,   0,    0,    0,    0,    0,
+			 0,  a22,  b23,   0,    0,   0, -a22,  c28,    0,    0,
+			 0,  b23,  d33,   0,    0,   0, -b23,  e38,    0,    0,
+			 0,   0,    0,  a22,  b23,   0,    0,    0, -a22,  c28,
+			 0,   0,    0,  b23,  d33,   0,    0,    0, -b23,  e38,
+			 0,   0,    0,    0,    0,   0,    0,    0,    0,    0,
+			 0, -a22, -b23,   0,    0,   0,  a22, -c28,    0,    0,
+			 0,  c28,  e38,   0,    0,   0, -c28,  f88,    0,    0,
+			 0,   0,    0, -a22, -b23,   0,    0,    0,  a22, -c28,
+			 0,   0,    0,  c28,  e38,   0,    0,    0, -c28,  f88;
+	
 			 
-	sigma *= (rho*A/420.0);
+	sigma *= (rho*A)/(420*l);//Omega*Omega*
+	
 }
 
 void poly_diff(double poly[], int n, double poly_return[]) {
@@ -761,6 +815,8 @@ void build_global_matrices(void){
 					pos_array[pos_idx][node_idx] = nodes[nid-1].location[pos_idx];
 				}
 			}
+			double xe = pos_array[0][0];
+			double xe1 = pos_array[0][1];
 			//calculate element length
 			double l=0;
 			for(int diff_idx=0; diff_idx<dims; diff_idx++) {
@@ -769,18 +825,18 @@ void build_global_matrices(void){
 			}
 			l = sqrt(l);
 			//build element matrices
-			build_shapes(l);
+			build_shapes(xe,xe1);
 			double breadth = materials[mat_idx].beams[bar_idx].width;
 			double depth = materials[mat_idx].beams[bar_idx].height;
 			double A = breadth*depth;
 			double Izz = breadth*pow(depth,3.0)/12.0;
 			double Iyy = depth*pow(breadth,3.0)/12.0;
-			build_p(l,materials[mat_idx].rho,A);
-			build_m(l,materials[mat_idx].rho,A);
-			build_g(l,materials[mat_idx].rho,A);			
-			build_k(l,materials[mat_idx].E,A,Iyy,Izz);	
+			build_p(xe,xe1,materials[mat_idx].rho,A);
+			build_m(xe,xe1,materials[mat_idx].rho,A);
+			build_g(xe,xe1,materials[mat_idx].rho,A);			
+			build_k(xe,xe1,materials[mat_idx].E,A,Iyy,Izz);	
 			// a and Omega are currently globals	
-			build_sigma(l,materials[mat_idx].rho,inputs.total_length,A,a,Omega);
+			build_sigma(xe,xe1,inputs.total_length,materials[mat_idx].rho,A,a,Omega);
 			// Set global values
 			for(int i=0;i<2*nodal_dofs;i++) {
 				for(int j=0; j<2*nodal_dofs; j++) {

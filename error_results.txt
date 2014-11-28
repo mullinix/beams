@@ -1,0 +1,3 @@
+Error for linearization 1: 1.80954e-02
+Error for linearization 3: 9.61806e-03
+Error for linearization 4: 3.78265e-02

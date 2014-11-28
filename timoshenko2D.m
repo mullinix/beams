@@ -1,7 +1,5 @@
-function err = timoshenko2D()%params)
-
-% b = params(1);
-% rho_E = params(2);
+function err = timoshenko2D(params)
+%function err = timoshenko2D(params)
 
 %% System parameters
 % L = 0.1524; % length of beam [m] (0.45)
@@ -27,37 +25,24 @@ base = pwd;
 % to set.
 % Whitespace will be trimmed
 
-%{
-composite_number = 1
-material_files = material.txt
-loads_file = loads.txt
-nodes_file = nodes.txt
-bcs_file = bcs.txt
-displacement_dofs = 1,2,2
-total_length = 0.1
-a = 1.0;
-Omega = 0.0;
-%}
+linearization = params(3);
 
-linearization = 1;
-
-rho = 7820;% sqrt(rho_E);%
-E = 210e9;% 1/sqrt(rho_E);%
-depth = 0.25;% b;% 
-breadth = 0.25;% b;%
+rho = 7820;
+E = 210e9;
+depth = 0.25;
+breadth = 0.25;
 A = depth*breadth;
 I = breadth*(depth^3)/12;
 alpha = 70;
 L = alpha*sqrt(I/A);
-T_squared = (rho*A*L^4)/(E*I);%T*T;%
-T = sqrt(T_squared);%alpha*L*sqrt(rho_E);%
+T_squared = (rho*A*L^4)/(E*I);
+T = sqrt(T_squared);
 
 
-delta = 0;
-gamma = 0;
+delta = params(1);
+gamma = params(2);
 a = delta*L;
-Omega = gamma/T;
-
+Omega = gamma/T;%20*(2*pi);%
 props.rho = rho;
 props.E = E;
 props.depth = depth;
@@ -71,13 +56,10 @@ props.delta = delta;
 props.gamma = gamma;
 props.a = a;
 props.Omega = Omega;
-
-display(props);
-% dofs = 5;
-% alpha = sqrt(A*L^2/I)
-
-delete('*.dat');
-delete('*.txt');
+% display(props);
+% 
+% delete('*.dat');
+% delete('*.txt');
 
 %% build material
 fmat =fopen('mat.txt','w');
@@ -133,19 +115,19 @@ fprintf(fh,'a = %.15e\n',a);
 fprintf(fh,'Omega = %.15e\n',Omega);
 fclose(fh);
 %% Calculate stiffness and mass matrices
-tic;
+% tic;
 system([base,'/analyzer']);
-tf = toc;
-fprintf(1,'<matlab> c execution time: %.5e\n',tf);
+% tf = toc;
+% fprintf(1,'<matlab> c execution time: %.5e\n',tf);
 %% Load stiffness and mass matrices
-tic;
+% tic;
 K = load('K.dat');
 M = load('M.dat');
 G = load('G.dat');
 Sigma = load('Sigma.dat');
 P = load('P.dat');
-tf = toc;
-fprintf(1,'data load time: %.5e\n',tf);
+% tf = toc;
+% fprintf(1,'data load time: %.5e\n',tf);
 
 % K(1:8,:) = []; K(:,1:8) = [];
 % M(1:8,:) = []; M(:,1:8) = [];
@@ -153,23 +135,23 @@ fprintf(1,'data load time: %.5e\n',tf);
 %% Establish polynomial eigenvalue coefficient matrices
 X0 = (K+Omega^2*(Sigma-P));
 X1 = 2*G*Omega;
-X2 = -M;
+X2 = M;
 
 %% Adimensionalize
-% X1 = X1./T;
-% X2 = X2./T_squared;
+X1 = X1./T;
+X2 = X2./T_squared;
 
 %% Apply rescaling
-% Original scales of matrices
-X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
-X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
-fprintf(1,'Pre-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
-X1_min = real(floor(log10(min(abs(X1(X1~=0)))))); 
-X1_max = real(floor(log10(max(abs(X1(X1~=0))))));
-fprintf(1,'Pre-Scale of X1: [10^%d->10^%d]\n',X1_min,X1_max);
-X0_min = real(floor(log10(min(abs(X0(X0~=0)))))); 
-X0_max = real(floor(log10(max(abs(X0(X0~=0))))));
-fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
+% % Original scales of matrices
+% X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
+% X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
+% fprintf(1,'Pre-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
+% X1_min = real(floor(log10(min(abs(X1(X1~=0)))))); 
+% X1_max = real(floor(log10(max(abs(X1(X1~=0))))));
+% fprintf(1,'Pre-Scale of X1: [10^%d->10^%d]\n',X1_min,X1_max);
+% X0_min = real(floor(log10(min(abs(X0(X0~=0)))))); 
+% X0_max = real(floor(log10(max(abs(X0(X0~=0))))));
+% fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
 % 
 % % space_rescaling_factor = 10^(-X1_min*0);%1e-4;% alpha
 % time_rescaling_factor = 10^((ceil((X1_max-X1_min)/2)+X1_min-X2_min));%1e17;% beta
@@ -194,15 +176,14 @@ fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
 % u(v,t) = v*sin(omega*t)
 % [M](w^2)v -[K]v=0
 
-tic;
+% tic;
 
 if(linearization==1)
     % std linearization
     [shape,omega] = polyeig(-X0,-X1,X2);
-    % omega = omega.*sqrt(time_rescaling_factor);
     evals = omega;
 elseif(linearization==3)
-    % L4 linearization
+    % L3 linearization
     Z = zeros(size(K));
     A = [Z,-X0; X2, Z];
     B = [X2, X1; Z, X2];
@@ -210,7 +191,7 @@ elseif(linearization==3)
     evals = diag(omega);
     omega = evals;
 elseif(linearization==4)
-    % L3 linearization
+    % L4 linearization
     Z = zeros(size(K));
     A = [X0,Z; X1, X0];
     B = [Z, -X0; X2, Z];
@@ -219,31 +200,37 @@ elseif(linearization==4)
     omega = evals;
 end
 
-omega = abs(omega);%(omega>0);
-% omega = omega.*T;
+omega = abs(omega);
+% omega = omega/T;
 omega = sort(omega,'ascend');
 
-freqs = omega./(2*pi);%.*sqrt(time_rescaling_factor);
+freqs = omega./(2*pi);
 [freqs,ix] = sort(abs(freqs),'ascend');
 omega = omega(ix);
-% shape = shape(:,ix);
-tf = toc;
-fprintf(1,'eigenvalue solve time: %.5e\n',tf);
+% tf = toc;
+% fprintf(1,'eigenvalue solve time: %.5e\n',tf);
 
-assignin('base','omega',omega);
-assignin('base','evals',evals);
-assignin('base','freqs',freqs);
-assignin('base','shape',shape);
-assignin('base','M',M);
-assignin('base','K',K);
-assignin('base','G',G);
-assignin('base','P',P);
-assignin('base','Sigma',Sigma);
-assignin('base','X0',X0);
-assignin('base','X1',X1);
-assignin('base','X2',X2);
-assignin('base','T',T);
-assignin('base','props',props);
+if(params(4)==0)
+    assignin('base','omega',omega);
+    assignin('base','evals',evals);
+    assignin('base','freqs',freqs);
+    assignin('base','shape',shape);
+    assignin('base','M',M);
+    assignin('base','K',K);
+    assignin('base','G',G);
+    assignin('base','P',P);
+    assignin('base','Sigma',Sigma);
+    assignin('base','X0',X0);
+    assignin('base','X1',X1);
+    assignin('base','X2',X2);
+    assignin('base','T',T);
+    assignin('base','props',props);
+else
+    fout = fopen(sprintf('omega-d%d-g%d-lin%d.txt',delta,gamma,linearization),'w');
+    fprintf(fout,'%1.6e\n',omega(1:30));
+    fclose(fout);
+end
+
 % assignin('base','time_rescaling_factor',time_rescaling_factor);
 % assignin('base','space_rescaling_factor',space_rescaling_factor);
 
@@ -261,8 +248,8 @@ assignin('base','props',props);
 % % result = result/(num_elts*dofs)^2;
 % fprintf(1,'Eigenvalue error (SSE): %.5e\n',result);
 
-% fprintf(1,'git test 2\n');
+%% calculate solution accuracy
 % plot(real(evals),imag(evals),'*');
-err = (4.97-omega(1))^2;
+err = sum(abs(1-(abs(real(evals))+abs(imag(evals)))./abs(evals)));
 display(err);
 end
