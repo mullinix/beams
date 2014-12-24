@@ -1,4 +1,4 @@
-function err = timoshenko2D(params)
+function timoshenko2D()
 %function err = timoshenko2D(params)
 
 %% System parameters
@@ -25,6 +25,9 @@ base = pwd;
 % to set.
 % Whitespace will be trimmed
 
+params = [0.1,0,3,0];
+% params = [delta,gamma,linearization,print];
+
 linearization = params(3);
 
 rho = 7820;
@@ -41,7 +44,7 @@ T = sqrt(T_squared);
 
 delta = params(1);
 gamma = params(2);
-a = delta*L;
+a = delta*L;%0.1;%
 Omega = gamma/T;%20*(2*pi);%
 props.rho = rho;
 props.E = E;
@@ -69,21 +72,51 @@ fprintf(fmat,'geometry_file = elements.txt\n');
 fclose(fmat);
 
 %% build geometry
-num_elts = 100;
-
+num_elts = 40;
+num_beams = 4;
+num_nodes = num_elts+1;
 fgeo = fopen('elements.txt','w');
-for idx=1:num_elts
-    fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx,depth,breadth,idx,idx+1);
+for j=0:num_beams-1
+    for idx=j*(num_nodes)+1:(j+1)*num_elts+j
+        fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx-j,depth,breadth,idx,idx+1);
+    end
 end
+%     for idx=1:num_elts
+%         fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx,depth,breadth,idx,idx+1);
+%     end
+%     for idx=(num_nodes)+1:2*num_elts+1
+%         fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx-1,depth,breadth,idx,idx+1);
+%     end
+%     for idx=2*(num_nodes)+1:3*num_elts+2
+%         fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx-2,depth,breadth,idx,idx+1);
+%     end
+% fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx,depth,breadth,1,num_elts+1);
+% fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx,depth,breadth,num_elts+1,2*num_elts+1);
+% fprintf(fgeo,'%d\t%.15e\t%.15e\t%d,%d\n',idx,depth,breadth,2*num_elts+1,1);
 fclose(fgeo);
 
 %% build nodes
-num_nodes = num_elts+1;
 dx = L/num_elts;
+nodes = (0:num_elts)';
 fnodes = fopen('node_locations.txt','w');
-for idx = 1:num_nodes
-    fprintf(fnodes,'%d\t%.15e\n',idx,(idx-1)*dx);
+for j=0:num_beams-1
+    bar = [(nodes*dx+a).*cos(j*2*pi/num_beams),(nodes*dx+a).*sin(j*2*pi/num_beams)];
+    for idx = 1:num_nodes
+        fprintf(fnodes,'%d\t%.15e,%.15e,%.15e\n',j*num_nodes+idx,bar(idx,1),bar(idx,2),0);
+    end
 end
+% bar_1 = [nodes*dx+a,zeros(num_elts+1,1)];
+% bar_2 = [(nodes*dx+a).*cos(2*pi/3),(nodes*dx+a).*sin(2*pi/3)];
+% bar_3 = [(nodes*dx+a).*cos(4*pi/3),(nodes*dx+a).*sin(4*pi/3)];
+% for idx = 1:num_nodes
+%     fprintf(fnodes,'%d\t%.15e,%.15e,%.15e\n',idx,bar_1(idx,1),bar_1(idx,2),0);
+% end
+% for idx = 1:num_nodes
+%     fprintf(fnodes,'%d\t%.15e,%.15e,%.15e\n',num_nodes+idx,bar_2(idx,1),bar_2(idx,2),0);
+% end
+% for idx = 1:num_nodes
+%     fprintf(fnodes,'%d\t%.15e,%.15e,%.15e\n',2*num_nodes+idx,bar_3(idx,1),bar_3(idx,2),0);
+% end
 fclose(fnodes);
 
 %% build loads
@@ -93,7 +126,10 @@ fclose(floads);
 
 %% build bcs
 fbcs = fopen('bcs.txt','w');
-fprintf(fbcs,'1\t1,1,1,1,1\n');
+fprintf(fbcs,'1\t1,1,1,1,0\n');
+for i=1:num_beams-1
+    fprintf(fbcs,'%d\t1,1,1,1,0\n',i*num_nodes+1);
+end
 fclose(fbcs);
 
 %% write inputs file
@@ -115,19 +151,19 @@ fprintf(fh,'a = %.15e\n',a);
 fprintf(fh,'Omega = %.15e\n',Omega);
 fclose(fh);
 %% Calculate stiffness and mass matrices
-% tic;
+tic;
 system([base,'/analyzer']);
-% tf = toc;
-% fprintf(1,'<matlab> c execution time: %.5e\n',tf);
+tf = toc;
+fprintf(1,'<matlab> c execution time: %.5e\n',tf);
 %% Load stiffness and mass matrices
-% tic;
+tic;
 K = load('K.dat');
 M = load('M.dat');
 G = load('G.dat');
 Sigma = load('Sigma.dat');
 P = load('P.dat');
-% tf = toc;
-% fprintf(1,'data load time: %.5e\n',tf);
+tf = toc;
+fprintf(1,'data load time: %.5e\n',tf);
 
 % K(1:8,:) = []; K(:,1:8) = [];
 % M(1:8,:) = []; M(:,1:8) = [];
@@ -176,7 +212,7 @@ X2 = X2./T_squared;
 % u(v,t) = v*sin(omega*t)
 % [M](w^2)v -[K]v=0
 
-% tic;
+tic;
 
 if(linearization==1)
     % std linearization
@@ -207,8 +243,8 @@ omega = sort(omega,'ascend');
 freqs = omega./(2*pi);
 [freqs,ix] = sort(abs(freqs),'ascend');
 omega = omega(ix);
-% tf = toc;
-% fprintf(1,'eigenvalue solve time: %.5e\n',tf);
+tf = toc;
+fprintf(1,'eigenvalue solve time: %.5e\n',tf);
 
 if(params(4)==0)
     assignin('base','omega',omega);
@@ -225,6 +261,8 @@ if(params(4)==0)
     assignin('base','X2',X2);
     assignin('base','T',T);
     assignin('base','props',props);
+    assignin('base','num_beams',num_beams);
+    assignin('base','num_elts',num_elts);
 else
     fout = fopen(sprintf('omega-d%d-g%d-lin%d.txt',delta,gamma,linearization),'w');
     fprintf(fout,'%1.6e\n',omega(1:30));

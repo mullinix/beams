@@ -157,6 +157,7 @@ int main(int argc, char** argv) {
 	}
 	
 	global_dofs=nodal_dofs*nodes.size();
+	//cout << nodal_dofs << " " <<  nodes.size() << " " << global_dofs << endl;
 	
 	P = MatrixXd::Zero(global_dofs,global_dofs);
 	M = MatrixXd::Zero(global_dofs,global_dofs);
@@ -654,8 +655,9 @@ void build_sigma(double xe, double xe1, double len, double rho, double A, double
 	MatrixXd v_mx = N_v*N_v.transpose();
 	MatrixXd w_mx = N_w*N_w.transpose();
 	double L = len;
+	double l = xe1-xe;
 	double val;
-	double mult_vec[3] = { a*L+0.5*L*L, -a, -0.5};
+	double mult_vec[3] = { a*(L-xe)+0.5*(L*L-xe*xe), -a-xe, -0.5};
 	for (int i=0; i<elt_dofs; i++ ){
 		for (int j=0; j<elt_dofs; j++ ){
 			// instead of logic, we need the (-) values...
@@ -668,7 +670,7 @@ void build_sigma(double xe, double xe1, double len, double rho, double A, double
 			}
 			mult_vecs(i,j,N_uvw_x,vec);
 			poly_mult(vec,mult_vec,m_sz+n_sz-1,3,vec2);
-			val = poly_int(vec2, m_sz+n_sz-1,xe,xe1);// 0.0, l);
+			val = poly_int(vec2, m_sz+n_sz-1, 0.0, l);
 			sigma(i,j) += v_mx(i,j)*val*A*rho;
 			sigma(i,j) += w_mx(i,j)*val*A*rho;
 		}
@@ -815,8 +817,7 @@ void build_global_matrices(void){
 					pos_array[pos_idx][node_idx] = nodes[nid-1].location[pos_idx];
 				}
 			}
-			double xe = pos_array[0][0];
-			double xe1 = pos_array[0][1];
+
 			//calculate element length
 			double l=0;
 			for(int diff_idx=0; diff_idx<dims; diff_idx++) {
@@ -824,6 +825,18 @@ void build_global_matrices(void){
 				l += diff_array[diff_idx]*diff_array[diff_idx];
 			}
 			l = sqrt(l);
+			for(int diff_idx=0; diff_idx<dims; diff_idx++) {
+				cos_array[diff_idx] = diff_array[diff_idx]/l;
+			}
+			Eigen::MatrixXd T = Eigen::MatrixXd::Zero(2,10);
+			T << cos_array[0], cos_array[1], 1, cos_array[2], 1,            0,            0, 0,            0, 0,
+					        0,            0, 0,            0, 0, cos_array[0], cos_array[1], 1, cos_array[2], 1;
+			Eigen::MatrixXd u_global = Eigen::MatrixXd::Zero(10,1);
+			u_global << pos_array[0][0], pos_array[1][0], 0, pos_array[2][0], 0,
+			            pos_array[0][1], pos_array[1][1], 0, pos_array[2][1], 0;
+			Eigen::MatrixXd u_local = T*u_global;
+			double xe = u_local(0);//pos_array[0][0];//
+			double xe1 = u_local(1);//pos_array[0][1];//
 			//build element matrices
 			build_shapes(xe,xe1);
 			double breadth = materials[mat_idx].beams[bar_idx].width;
