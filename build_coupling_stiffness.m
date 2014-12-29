@@ -1,10 +1,11 @@
-
+clear;
 %% load values
 % tic;
 % load('w-bending_unclamped_disconnected.mat');
 % tload = toc;
 % fprintf(1,'Time to load mat: %.5es\n',tload);
-timoshenko2D();
+timoshenko2D(100,3);
+linearization = 1;
 
 %% build vars
 nn = num_beams;
@@ -59,11 +60,27 @@ X2 = X2./T_squared;
 %% solve normal modes using linearization 3
 tic;
 Z = zeros(size(K));
-A = [Z,-X0; X2, Z];
-B = [X2, X1; Z, X2];
-[shape,omega] = eig(A,B);
-evals = diag(omega);
-omega = evals;
+if(linearization==1)
+    % std linearization
+    [shape,omega] = polyeig(-X0,-X1,X2);
+    evals = omega;
+elseif(linearization==3)
+    % L3 linearization
+    Z = zeros(size(K));
+    A = [Z,-X0; X2, Z];
+    B = [X2, X1; Z, X2];
+    [shape,omega] = eig(A,B);
+    evals = diag(omega);
+    omega = evals;
+elseif(linearization==4)
+    % L4 linearization
+    Z = zeros(size(K));
+    A = [X0,Z; X1, X0];
+    B = [Z, -X0; X2, Z];
+    [shape,omega] = eig(A,B);
+    evals = diag(omega);
+    omega = evals;
+end
 omega = abs(omega);
 % omega = omega/T;
 omega = sort(omega,'ascend');

@@ -1,4 +1,4 @@
-function timoshenko2D()
+function timoshenko2D(num_elts,num_beams)
 %function err = timoshenko2D(params)
 
 %% System parameters
@@ -72,8 +72,8 @@ fprintf(fmat,'geometry_file = elements.txt\n');
 fclose(fmat);
 
 %% build geometry
-num_elts = 40;
-num_beams = 4;
+% num_elts = 70;
+% num_beams = 3;
 num_nodes = num_elts+1;
 fgeo = fopen('elements.txt','w');
 for j=0:num_beams-1
@@ -168,126 +168,126 @@ fprintf(1,'data load time: %.5e\n',tf);
 % K(1:8,:) = []; K(:,1:8) = [];
 % M(1:8,:) = []; M(:,1:8) = [];
 
-%% Establish polynomial eigenvalue coefficient matrices
-X0 = (K+Omega^2*(Sigma-P));
-X1 = 2*G*Omega;
-X2 = M;
-
-%% Adimensionalize
-X1 = X1./T;
-X2 = X2./T_squared;
-
-%% Apply rescaling
-% % Original scales of matrices
-% X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
-% X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
-% fprintf(1,'Pre-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
-% X1_min = real(floor(log10(min(abs(X1(X1~=0)))))); 
-% X1_max = real(floor(log10(max(abs(X1(X1~=0))))));
-% fprintf(1,'Pre-Scale of X1: [10^%d->10^%d]\n',X1_min,X1_max);
-% X0_min = real(floor(log10(min(abs(X0(X0~=0)))))); 
-% X0_max = real(floor(log10(max(abs(X0(X0~=0))))));
-% fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
+% %% Establish polynomial eigenvalue coefficient matrices
+% X0 = (K+Omega^2*(Sigma-P));
+% X1 = 2*G*Omega;
+% X2 = M;
 % 
-% % space_rescaling_factor = 10^(-X1_min*0);%1e-4;% alpha
-% time_rescaling_factor = 10^((ceil((X1_max-X1_min)/2)+X1_min-X2_min));%1e17;% beta
-% time_rescaling_factor2 = 10^((ceil((X0_max-X0_min)/2)+X0_min-X1_min));%1e17;% beta
+% %% Adimensionalize
+% X1 = X1./T;
+% X2 = X2./T_squared;
 % 
-% X1 = X1.*time_rescaling_factor;
-% X2 = X2.*time_rescaling_factor;
-% KK=sparse(KK); MM = sparse(MM);
-
-% % New scales
-% X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
-% X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
-% fprintf(1,'New-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
-% X1_min = real(floor(log10(min(abs(X1(X1~=0)))))); 
-% X1_max = real(floor(log10(max(abs(X1(X1~=0))))));
-% fprintf(1,'New-Scale of X1: [10^%d->10^%d]\n',X1_min,X1_max);
-% X0_min = real(floor(log10(min(abs(X0(X0~=0)))))); 
-% X0_max = real(floor(log10(max(abs(X0(X0~=0))))));
-% fprintf(1,'New-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
-
-%% Solve the generalized eigenvalue problem
-% u(v,t) = v*sin(omega*t)
-% [M](w^2)v -[K]v=0
-
-tic;
-
-if(linearization==1)
-    % std linearization
-    [shape,omega] = polyeig(-X0,-X1,X2);
-    evals = omega;
-elseif(linearization==3)
-    % L3 linearization
-    Z = zeros(size(K));
-    A = [Z,-X0; X2, Z];
-    B = [X2, X1; Z, X2];
-    [shape,omega] = eig(A,B);
-    evals = diag(omega);
-    omega = evals;
-elseif(linearization==4)
-    % L4 linearization
-    Z = zeros(size(K));
-    A = [X0,Z; X1, X0];
-    B = [Z, -X0; X2, Z];
-    [shape,omega] = eig(A,B);
-    evals = diag(omega);
-    omega = evals;
-end
-
-omega = abs(omega);
-% omega = omega/T;
-omega = sort(omega,'ascend');
-
-freqs = omega./(2*pi);
-[freqs,ix] = sort(abs(freqs),'ascend');
-omega = omega(ix);
-tf = toc;
-fprintf(1,'eigenvalue solve time: %.5e\n',tf);
-
-if(params(4)==0)
-    assignin('base','omega',omega);
-    assignin('base','evals',evals);
-    assignin('base','freqs',freqs);
-    assignin('base','shape',shape);
+% %% Apply rescaling
+% % % Original scales of matrices
+% % X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
+% % X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
+% % fprintf(1,'Pre-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
+% % X1_min = real(floor(log10(min(abs(X1(X1~=0)))))); 
+% % X1_max = real(floor(log10(max(abs(X1(X1~=0))))));
+% % fprintf(1,'Pre-Scale of X1: [10^%d->10^%d]\n',X1_min,X1_max);
+% % X0_min = real(floor(log10(min(abs(X0(X0~=0)))))); 
+% % X0_max = real(floor(log10(max(abs(X0(X0~=0))))));
+% % fprintf(1,'Pre-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
+% % 
+% % % space_rescaling_factor = 10^(-X1_min*0);%1e-4;% alpha
+% % time_rescaling_factor = 10^((ceil((X1_max-X1_min)/2)+X1_min-X2_min));%1e17;% beta
+% % time_rescaling_factor2 = 10^((ceil((X0_max-X0_min)/2)+X0_min-X1_min));%1e17;% beta
+% % 
+% % X1 = X1.*time_rescaling_factor;
+% % X2 = X2.*time_rescaling_factor;
+% % KK=sparse(KK); MM = sparse(MM);
+% 
+% % % New scales
+% % X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
+% % X2_max = real(floor(log10(max(abs(X2(X2~=0))))));
+% % fprintf(1,'New-Scale of X2: [10^%d->10^%d]\n',X2_min,X2_max);
+% % X1_min = real(floor(log10(min(abs(X1(X1~=0)))))); 
+% % X1_max = real(floor(log10(max(abs(X1(X1~=0))))));
+% % fprintf(1,'New-Scale of X1: [10^%d->10^%d]\n',X1_min,X1_max);
+% % X0_min = real(floor(log10(min(abs(X0(X0~=0)))))); 
+% % X0_max = real(floor(log10(max(abs(X0(X0~=0))))));
+% % fprintf(1,'New-Scale of X0: [10^%d->10^%d]\n',X0_min,X0_max);
+% 
+% %% Solve the generalized eigenvalue problem
+% % u(v,t) = v*sin(omega*t)
+% % [M](w^2)v -[K]v=0
+% 
+% tic;
+% 
+% if(linearization==1)
+%     % std linearization
+%     [shape,omega] = polyeig(-X0,-X1,X2);
+%     evals = omega;
+% elseif(linearization==3)
+%     % L3 linearization
+%     Z = zeros(size(K));
+%     A = [Z,-X0; X2, Z];
+%     B = [X2, X1; Z, X2];
+%     [shape,omega] = eig(A,B);
+%     evals = diag(omega);
+%     omega = evals;
+% elseif(linearization==4)
+%     % L4 linearization
+%     Z = zeros(size(K));
+%     A = [X0,Z; X1, X0];
+%     B = [Z, -X0; X2, Z];
+%     [shape,omega] = eig(A,B);
+%     evals = diag(omega);
+%     omega = evals;
+% end
+% 
+% omega = abs(omega);
+% % omega = omega/T;
+% omega = sort(omega,'ascend');
+% 
+% freqs = omega./(2*pi);
+% [freqs,ix] = sort(abs(freqs),'ascend');
+% omega = omega(ix);
+% tf = toc;
+% fprintf(1,'eigenvalue solve time: %.5e\n',tf);
+% 
+% if(params(4)==0)
+%     assignin('base','omega',omega);
+%     assignin('base','evals',evals);
+%     assignin('base','freqs',freqs);
+%     assignin('base','shape',shape);
     assignin('base','M',M);
     assignin('base','K',K);
     assignin('base','G',G);
     assignin('base','P',P);
     assignin('base','Sigma',Sigma);
-    assignin('base','X0',X0);
-    assignin('base','X1',X1);
-    assignin('base','X2',X2);
+%     assignin('base','X0',X0);
+%     assignin('base','X1',X1);
+%     assignin('base','X2',X2);
     assignin('base','T',T);
     assignin('base','props',props);
     assignin('base','num_beams',num_beams);
     assignin('base','num_elts',num_elts);
-else
-    fout = fopen(sprintf('omega-d%d-g%d-lin%d.txt',delta,gamma,linearization),'w');
-    fprintf(fout,'%1.6e\n',omega(1:30));
-    fclose(fout);
-end
-
-% assignin('base','time_rescaling_factor',time_rescaling_factor);
-% assignin('base','space_rescaling_factor',space_rescaling_factor);
-
-% mode_to_try = 1;%3*round(length(omega_sqr)/4);
-
-%% calculate eigenvalue error
-% result = 0.0;
-% % omega_sqr = omega;
-% % omega_sqr = omega_sqr(ix);
-% for mode_to_try=1:length(evals)
-%     tmp_result = (X0 + evals(mode_to_try)*X1 + (evals(mode_to_try)^2)*X2)*shape(:,mode_to_try);
-%     %M*omega_sqr(mode_to_try)*shape(:,mode_to_try)-K*shape(:,mode_to_try);
-%     result = result + tmp_result'*tmp_result;
+% else
+%     fout = fopen(sprintf('omega-d%d-g%d-lin%d.txt',delta,gamma,linearization),'w');
+%     fprintf(fout,'%1.6e\n',omega(1:30));
+%     fclose(fout);
 % end
-% % result = result/(num_elts*dofs)^2;
-% fprintf(1,'Eigenvalue error (SSE): %.5e\n',result);
-
-%% calculate solution accuracy
-% plot(real(evals),imag(evals),'*');
-err = sum(abs(1-(abs(real(evals))+abs(imag(evals)))./abs(evals)));
-display(err);
+% 
+% % assignin('base','time_rescaling_factor',time_rescaling_factor);
+% % assignin('base','space_rescaling_factor',space_rescaling_factor);
+% 
+% % mode_to_try = 1;%3*round(length(omega_sqr)/4);
+% 
+% %% calculate eigenvalue error
+% % result = 0.0;
+% % % omega_sqr = omega;
+% % % omega_sqr = omega_sqr(ix);
+% % for mode_to_try=1:length(evals)
+% %     tmp_result = (X0 + evals(mode_to_try)*X1 + (evals(mode_to_try)^2)*X2)*shape(:,mode_to_try);
+% %     %M*omega_sqr(mode_to_try)*shape(:,mode_to_try)-K*shape(:,mode_to_try);
+% %     result = result + tmp_result'*tmp_result;
+% % end
+% % % result = result/(num_elts*dofs)^2;
+% % fprintf(1,'Eigenvalue error (SSE): %.5e\n',result);
+% 
+% %% calculate solution accuracy
+% % plot(real(evals),imag(evals),'*');
+% err = sum(abs(1-(abs(real(evals))+abs(imag(evals)))./abs(evals)));
+% display(err);
 end
