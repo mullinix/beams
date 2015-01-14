@@ -4,8 +4,26 @@ clear;
 % load('w-bending_unclamped_disconnected.mat');
 % tload = toc;
 % fprintf(1,'Time to load mat: %.5es\n',tload);
-timoshenko2D(2,1);
+timoshenko2D(2);
+num_beams = 4;
 linearization = 3;
+node_dofs = 5;
+num_bcs = 4;
+
+%% build multi beams
+KK = zeros(size(K)*num_beams); MM=KK; GG=KK; PP=KK; SS=KK;
+for b_idx = 1:num_beams
+    start_idx = (b_idx-1)*(num_nodes*node_dofs-num_bcs)+1;
+    end_idx = b_idx*(num_nodes*node_dofs-num_bcs);
+    KK(start_idx:end_idx,start_idx:end_idx)=K;
+    GG(start_idx:end_idx,start_idx:end_idx)=G;
+    MM(start_idx:end_idx,start_idx:end_idx)=M;
+    PP(start_idx:end_idx,start_idx:end_idx)=P;
+    SS(start_idx:end_idx,start_idx:end_idx)=Sigma;
+end
+
+K=KK; G=GG; M=MM; P=PP; Sigma=SS;
+clear KK GG MM PP SS;
 
 %% build vars
 nn = num_beams;
