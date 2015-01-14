@@ -632,6 +632,7 @@ void build_k(double xe, double xe1, double E, double A, double Iyy, double Izz){
 	*/
 	
 	double l = xe1-xe;
+	cout << "xe1: " << xe1 << " xe: " << xe << " l: " << l << endl;
 	k <<  A*l*l,       0,         0,       0,         0,  -A*l*l,        0,         0,        0,         0,
 	          0,  12*Izz,   6*Izz*l,       0,         0,       0,  -12*Izz,   6*Izz*l,        0,         0,
 	          0, 6*Izz*l, 4*Izz*l*l,       0,         0,       0, -6*Izz*l, 2*Izz*l*l,        0,         0,
@@ -828,12 +829,12 @@ void build_global_matrices(void){
 			for(int diff_idx=0; diff_idx<dims; diff_idx++) {
 				cos_array[diff_idx] = diff_array[diff_idx]/l;
 			}
-			Eigen::MatrixXd T = Eigen::MatrixXd::Zero(2,10);
-			T << cos_array[0], cos_array[1], 1, cos_array[2], 1,            0,            0, 0,            0, 0,
-					        0,            0, 0,            0, 0, cos_array[0], cos_array[1], 1, cos_array[2], 1;
-			Eigen::MatrixXd u_global = Eigen::MatrixXd::Zero(10,1);
-			u_global << pos_array[0][0], pos_array[1][0], 0, pos_array[2][0], 0,
-			            pos_array[0][1], pos_array[1][1], 0, pos_array[2][1], 0;
+			Eigen::MatrixXd T = Eigen::MatrixXd::Zero(2,6);
+			T << cos_array[0], cos_array[1], cos_array[2],            0,            0,            0,
+					        0,            0,            0, cos_array[0], cos_array[1], cos_array[2];
+			Eigen::MatrixXd u_global = Eigen::MatrixXd::Zero(6,1);
+			u_global << pos_array[0][0], pos_array[1][0], pos_array[2][0],
+			            pos_array[0][1], pos_array[1][1], pos_array[2][1];
 			Eigen::MatrixXd u_local = T*u_global;
 			double xe = u_local(0);//pos_array[0][0];//
 			double xe1 = u_local(1);//pos_array[0][1];//
@@ -853,6 +854,7 @@ void build_global_matrices(void){
 			// Set global values
 			for(int i=0;i<2*nodal_dofs;i++) {
 				for(int j=0; j<2*nodal_dofs; j++) {
+					//cout << "global_index(" << i << "," << j << "): (" << global_index[i] << "," << global_index[j] << ")" << endl;
 					P(global_index[i],global_index[j]) += p(i,j);
 					M(global_index[i],global_index[j]) += m(i,j);
 					G(global_index[i],global_index[j]) += g(i,j);

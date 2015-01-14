@@ -4,8 +4,8 @@ clear;
 % load('w-bending_unclamped_disconnected.mat');
 % tload = toc;
 % fprintf(1,'Time to load mat: %.5es\n',tload);
-timoshenko2D(100,3);
-linearization = 1;
+timoshenko2D(2,1);
+linearization = 3;
 
 %% build vars
 nn = num_beams;
@@ -28,7 +28,8 @@ node_dofs = 5;
 bc_nodes = (0:num_beams-1)*num_nodes+1;
 free_dofs = bc_nodes*node_dofs;
 adjusted_dofs = free_dofs-(1:nn).*(node_dofs-1);
-
+% spy(K)
+% pause
 %% modify stiffness matrix
 for i=1:nn-1
     gdofs = adjusted_dofs(i:i+1);
@@ -36,11 +37,11 @@ for i=1:nn-1
 end
 gdofs = adjusted_dofs([nn,1]);
 K(gdofs,gdofs) = K(gdofs,gdofs)+kk_round;
-K(1,:)=[]; K(:,1)=[];
-M(1,:)=[]; M(:,1)=[];
-G(1,:)=[]; G(:,1)=[];
-P(1,:)=[]; P(:,1)=[];
-Sigma(1,:)=[]; Sigma(:,1)=[];
+% K(1,:)=[]; K(:,1)=[];
+% M(1,:)=[]; M(:,1)=[];
+% G(1,:)=[]; G(:,1)=[];
+% P(1,:)=[]; P(:,1)=[];
+% Sigma(1,:)=[]; Sigma(:,1)=[];
 %% set parameters for system solution
 delta = props.delta;
 % gamma = props.gamma;
@@ -58,6 +59,7 @@ X2 = M;
 X1 = X1./T;
 X2 = X2./T_squared;
 %% solve normal modes using linearization 3
+% spy(K)
 tic;
 Z = zeros(size(K));
 if(linearization==1)

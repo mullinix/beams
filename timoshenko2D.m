@@ -100,7 +100,7 @@ dx = L/num_elts;
 nodes = (0:num_elts)';
 fnodes = fopen('node_locations.txt','w');
 for j=0:num_beams-1
-    bar = [(nodes*dx+a).*cos(j*2*pi/num_beams),(nodes*dx+a).*sin(j*2*pi/num_beams)];
+    bar = [(nodes*dx+a).*cos(j*2*pi/num_beams+0.01),(nodes*dx+a).*sin(j*2*pi/num_beams+0.01)];
     for idx = 1:num_nodes
         fprintf(fnodes,'%d\t%.15e,%.15e,%.15e\n',j*num_nodes+idx,bar(idx,1),bar(idx,2),0);
     end
