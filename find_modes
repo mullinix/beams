@@ -1,0 +1,13 @@
+%% get displacement modes
+modes1 = shape(4:5:end/2,:);
+%% show that alternating cols are identical
+sum(sum(abs(modes1(:,2:2:end)-modes1(:,1:2:end))))
+%% extract interesting non-duplicate modes (first 5 modes)
+modes = modes1(:,end:-2:end-9);
+%% normalize to max of 1 (divide all elts by inf norm)
+for i=1:size(modes,2)
+    modes(:,i) = modes(:,i)./max(abs(modes(:,i)));
+end
+%% or, normalize to total value of 1 (divide all elts by 2-norm)
+% modes = normc(modes);
+

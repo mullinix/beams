@@ -95,7 +95,7 @@ fclose(floads);
 
 %% build bcs
 fbcs = fopen('bcs.txt','w');
-fprintf(fbcs,'1\t1,1,1,1,0\n');
+fprintf(fbcs,'1\t1,1,1,1,1\n');
 fclose(fbcs);
 
 %% write inputs file

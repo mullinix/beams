@@ -1,0 +1,222 @@
+Time to read inputs: 2.06840e-02
+Time to build and assemble: 1.52058e+01
+Time to write files: 2.92380e+02
+<matlab> c execution time: 3.08846e+02
+data load time: 8.53154e+02
+{Error using <a href="matlab:helpUtils.errorDocCallback('vertcat')" style="font-weight:bold">vertcat</a>
+Out of memory. Type HELP MEMORY for your options.
+Error in <a href="matlab:helpUtils.errorDocCallback('build_coupling_stiffness', '/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m', 111)" style="font-weight:bold">build_coupling_stiffness</a> (<a href="matlab: opentoline('/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m',111,0)">line 111</a>)
+    A = [Z,-X0; X2, Z];} 
+build_coupling_stiffness
+Time to read inputs: 4.18700e-03
+Time to build and assemble: 2.31053e-01
+Time to write files: 3.77835e+00
+<matlab> c execution time: 4.06233e+00
+data load time: 1.30447e+01
+{Error using <a href="matlab:helpUtils.errorDocCallback('save')" style="font-weight:bold">save</a>
+Argument must contain a string.
+Error in <a href="matlab:helpUtils.errorDocCallback('build_coupling_stiffness', '/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m', 134)" style="font-weight:bold">build_coupling_stiffness</a> (<a href="matlab: opentoline('/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m',134,0)">line 134</a>)
+save(savename,omega,shape);} 
+build_coupling_stiffness
+Time to read inputs: 1.82000e-03
+Time to build and assemble: 2.30136e-01
+Time to write files: 3.69156e+00
+<matlab> c execution time: 3.95321e+00
+data load time: 1.30232e+01
+{Error using <a href="matlab:helpUtils.errorDocCallback('save')" style="font-weight:bold">save</a>
+Argument must contain a string.
+Error in <a href="matlab:helpUtils.errorDocCallback('build_coupling_stiffness', '/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m', 133)" style="font-weight:bold">build_coupling_stiffness</a> (<a href="matlab: opentoline('/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m',133,0)">line 133</a>)
+save(sprintf('%d-elts.mat',nelts),omega,shape);} 
+savename = sprintf('%d-elts.mat',nelts)
+savename =
+250-elts.mat
+isstr(savename)
+ans =
+     1
+save(savename,omega,shape)
+{Error using <a href="matlab:helpUtils.errorDocCallback('save')" style="font-weight:bold">save</a>
+Argument must contain a string.} 
+helpUtils.errorDocCallback('save')
+save(savename,'omega','shape')
+build_coupling_stiffness
+Time to read inputs: 1.90700e-03
+Time to build and assemble: 2.46302e-01
+Time to write files: 3.78100e+00
+<matlab> c execution time: 4.06163e+00
+data load time: 1.63361e+01
+err =
+   NaN
+eigenvalue solve time: 1.97632e+02
+Time to read inputs: 3.85800e-03
+Time to build and assemble: 2.17088e-01
+Time to write files: 2.96425e+00
+<matlab> c execution time: 3.21430e+00
+data load time: 1.05508e+01
+err =
+   NaN
+eigenvalue solve time: 1.19394e+02
+Time to read inputs: 1.85900e-03
+Time to build and assemble: 3.13069e-01
+Time to write files: 3.81708e+00
+<matlab> c execution time: 4.16485e+00
+data load time: 1.32293e+01
+err =
+   NaN
+eigenvalue solve time: 1.60193e+02
+{Undefined function or variable 'nelts'.
+Error in <a href="matlab:helpUtils.errorDocCallback('build_coupling_stiffness', '/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m', 12)" style="font-weight:bold">build_coupling_stiffness</a> (<a href="matlab: opentoline('/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m',12,0)">line 12</a>)
+timoshenko2D(nelts);} 
+build_coupling_stiffness
+Time to read inputs: 3.96500e-03
+Time to build and assemble: 3.05849e-01
+Time to write files: 3.62432e+00
+<matlab> c execution time: 3.96786e+00
+{Operation terminated by user during <a href="matlab:helpUtils.errorDocCallback('timoshenko2D', '/home/james/Dropbox/School/Research_Devel/Research/timoshenko2D.m', 129)" style="font-weight:bold">timoshenko2D</a> (<a href="matlab: opentoline('/home/james/Dropbox/School/Research_Devel/Research/timoshenko2D.m',129,0)">line 129</a>)
+
+In <a href="matlab:helpUtils.errorDocCallback('build_coupling_stiffness', '/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m', 11)" style="font-weight:bold">build_coupling_stiffness</a> (<a href="matlab: opentoline('/home/james/Dropbox/School/Research_Devel/Research/build_coupling_stiffness.m',11,0)">line 11</a>)
+timoshenko2D(nelts);} 
+build_coupling_stiffness
+Time to read inputs: 1.04300e-03
+Time to build and assemble: 5.13790e-02
+Time to write files: 5.81125e-01
+<matlab> c execution time: 6.45130e-01
+data load time: 2.23761e+00
+err =
+     0
+eigenvalue solve time: 1.19261e+01
+Time to read inputs: 1.45400e-03
+Time to build and assemble: 6.74250e-02
+Time to write files: 5.61936e-01
+<matlab> c execution time: 6.47585e-01
+data load time: 2.20260e+00
+err =
+     0
+eigenvalue solve time: 1.24654e+01
+Time to read inputs: 9.58000e-04
+Time to build and assemble: 4.96830e-02
+Time to write files: 5.43488e-01
+<matlab> c execution time: 6.07737e-01
+data load time: 2.16957e+00
+err =
+     0
+eigenvalue solve time: 1.16589e+01
+Time to read inputs: 9.22000e-04
+Time to build and assemble: 5.26860e-02
+Time to write files: 5.74894e-01
+<matlab> c execution time: 6.42047e-01
+data load time: 3.24300e+00
+err =
+     0
+eigenvalue solve time: 1.39056e+01
+Time to read inputs: 1.23700e-03
+Time to build and assemble: 5.14310e-02
+Time to write files: 5.81509e-01
+<matlab> c execution time: 7.14887e-01
+data load time: 2.26722e+00
+err =
+     0
+eigenvalue solve time: 1.08138e+01
+Time to read inputs: 1.84400e-03
+Time to build and assemble: 4.97050e-02
+Time to write files: 5.75238e-01
+<matlab> c execution time: 6.42230e-01
+data load time: 2.29580e+00
+err =
+     0
+eigenvalue solve time: 1.29566e+01
+Time to read inputs: 9.48000e-04
+Time to build and assemble: 5.22490e-02
+Time to write files: 5.81400e-01
+<matlab> c execution time: 6.50507e-01
+data load time: 2.35135e+00
+err =
+     0
+eigenvalue solve time: 1.16939e+01
+Time to read inputs: 1.27000e-03
+Time to build and assemble: 5.13940e-02
+Time to write files: 6.69175e-01
+<matlab> c execution time: 7.39884e-01
+data load time: 2.40768e+00
+err =
+     0
+eigenvalue solve time: 1.59879e+01
+Time to read inputs: 9.62000e-04
+Time to build and assemble: 5.79570e-02
+Time to write files: 6.38621e-01
+<matlab> c execution time: 7.13502e-01
+data load time: 2.51385e+00
+err =
+   NaN
+eigenvalue solve time: 1.23327e+01
+Time to read inputs: 9.22000e-04
+Time to build and assemble: 4.62940e-02
+Time to write files: 5.25387e-01
+<matlab> c execution time: 5.87300e-01
+data load time: 2.17037e+00
+err =
+     0
+eigenvalue solve time: 1.17033e+01
+Time to read inputs: 1.07600e-03
+Time to build and assemble: 5.46610e-02
+Time to write files: 5.84451e-01
+<matlab> c execution time: 6.52986e-01
+data load time: 2.18098e+00
+err =
+     0
+eigenvalue solve time: 1.20702e+01
+Time to read inputs: 1.97100e-03
+Time to build and assemble: 4.79790e-02
+Time to write files: 5.47561e-01
+<matlab> c execution time: 6.12602e-01
+data load time: 2.17131e+00
+err =
+     0
+eigenvalue solve time: 1.07437e+01
+Time to read inputs: 2.04900e-03
+Time to build and assemble: 4.84810e-02
+Time to write files: 5.56091e-01
+<matlab> c execution time: 6.23558e-01
+data load time: 2.19981e+00
+err =
+     0
+eigenvalue solve time: 1.31539e+01
+Time to read inputs: 2.06600e-03
+Time to build and assemble: 5.42890e-02
+Time to write files: 5.64467e-01
+<matlab> c execution time: 6.38377e-01
+data load time: 2.26768e+00
+err =
+     0
+eigenvalue solve time: 1.11895e+01
+Time to read inputs: 9.25000e-04
+Time to build and assemble: 5.43980e-02
+Time to write files: 6.05256e-01
+<matlab> c execution time: 6.73342e-01
+data load time: 2.36226e+00
+err =
+     0
+eigenvalue solve time: 1.52375e+01
+Time to read inputs: 1.13600e-03
+Time to build and assemble: 5.47340e-02
+Time to write files: 5.88831e-01
+<matlab> c execution time: 6.60170e-01
+data load time: 3.28035e+00
+err =
+     0
+eigenvalue solve time: 1.36427e+01
+Time to read inputs: 9.26000e-04
+Time to build and assemble: 5.81110e-02
+Time to write files: 6.38917e-01
+<matlab> c execution time: 7.12292e-01
+data load time: 2.46225e+00
+err =
+     0
+eigenvalue solve time: 1.46801e+01
+Time to read inputs: 9.43000e-04
+Time to build and assemble: 5.92070e-02
+Time to write files: 6.45894e-01
+<matlab> c execution time: 7.19775e-01
+data load time: 2.42588e+00
+err =
+   NaN
+eigenvalue solve time: 1.31565e+01
