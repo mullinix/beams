@@ -10,7 +10,7 @@ bad=0;
 while ~bad 
 timoshenko2D(nelts);
 num_beams = 1;
-linearization = 3;
+linearization = 1;
 % node_dofs = 5;
 % num_bcs = 4;
 
