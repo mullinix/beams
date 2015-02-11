@@ -1,13 +1,14 @@
 %% get displacement modes
-% modes1 = shape(2*end/3+3:5:end,:);% bending modes are in the last third
+dof_shift = 5;
+modes1 = shape([dof_shift:5:end/3,end/3+dof_shift:5:2*end/3,2*end/3+dof_shift:5:end],:);% bending modes are in the last third
 %% show that alternating cols are identical
 max(max(abs(modes1(:,2:2:end)-modes1(:,1:2:end-1))))
 %% extract interesting non-duplicate modes (first 5 modes)
-displ_modes = real(modes1(:,end:-1:end-9));
+displ_modes = real(modes1(:,1:30));
 %% normalize to max of 1 (divide all elts by inf norm)
-for i=1:size(displ_modes,2)
-    displ_modes(:,i) = displ_modes(:,i)./max(abs(displ_modes(:,i)));
-end
+% for i=1:size(displ_modes,2)
+%     displ_modes(:,i) = displ_modes(:,i)./max(abs(displ_modes(:,i)));
+% end
 %% or, normalize to total value of 1 (divide all elts by 2-norm)
 % modes = normc(modes);
 %% show what the shapes are

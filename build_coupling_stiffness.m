@@ -5,7 +5,7 @@ clear;
 % tload = toc;
 % fprintf(1,'Time to load mat: %.5es\n',tload);
 % diary on;
-nelts=100;
+nelts=20;
 % bad=0;
 % while ~bad 
 timoshenko2D(nelts);
@@ -15,21 +15,21 @@ node_dofs = 5;
 num_bcs = 4;
 
 %% remove truncation error
-% K_max = max(max(abs(K)));
-% K_low = 10^(real(floor(log10(K_max)))-15);
-% K(abs(K)<K_low)=0;
-% G_max = max(max(abs(G)));
-% G_low = 10^(real(floor(log10(G_max)))-15);
-% G(abs(G)<G_low)=0;
-% M_max = max(max(abs(M)));
-% M_low = 10^(real(floor(log10(M_max)))-15);
-% M(abs(M)<M_low)=0;
-% P_max = max(max(abs(P)));
-% P_low = 10^(real(floor(log10(P_max)))-15);
-% P(abs(P)<P_low)=0;
-% S_max = max(max(abs(Sigma)));
-% S_low = 10^(real(floor(log10(S_max)))-15);
-% Sigma(abs(Sigma)<S_low)=0;
+K_max = max(max(abs(K)));
+K_low = 10^(real(floor(log10(K_max)))-15);
+K(abs(K)<K_low)=0;
+G_max = max(max(abs(G)));
+G_low = 10^(real(floor(log10(G_max)))-15);
+G(abs(G)<G_low)=0;
+M_max = max(max(abs(M)));
+M_low = 10^(real(floor(log10(M_max)))-15);
+M(abs(M)<M_low)=0;
+P_max = max(max(abs(P)));
+P_low = 10^(real(floor(log10(P_max)))-15);
+P(abs(P)<P_low)=0;
+S_max = max(max(abs(Sigma)));
+S_low = 10^(real(floor(log10(S_max)))-15);
+Sigma(abs(Sigma)<S_low)=0;
 
 %% build multi beams
 KK = zeros(size(K)*num_beams); MM=KK; GG=KK; PP=KK; SS=KK;
@@ -56,7 +56,7 @@ a_lens = locs_diff(:,1)'*locs_diff(:,1)+locs_diff(:,2)'*locs_diff(:,2);
 a_lens = sqrt(a_lens);
 l = props.a*2*pi/3; % only for axial coupling
 k=props.E*props.I./a_lens;
-beta=1e4;
+beta=1e1;
 k_round = beta*props.E*props.I./props.L;
 kk = [k(1),-k(1);-k(1),k(1)];
 kk_round = [ k_round,-k_round;
@@ -66,11 +66,11 @@ num_nodes = num_elts+1;
 node_dofs = 5;
 bc_nodes = (0:num_beams-1)*num_nodes+1;
 free_dofs = bc_nodes*node_dofs;
-adjusted_dofs = free_dofs-(1:nn).*(node_dofs-1);
+adjusted_dofs = [free_dofs-(1:nn).*(node_dofs-1),1];
 % spy(K)
 % pause
 %% modify stiffness matrix
-for i=1:nn-1
+for i=1:nn
     gdofs = adjusted_dofs(i:i+1);
     K(gdofs,gdofs) = K(gdofs,gdofs)+kk_round; 
 end
