@@ -9,7 +9,7 @@ nelts=20;
 % bad=0;
 % while ~bad 
 timoshenko2D(nelts);
-num_beams = 3;
+num_beams = 4;
 linearization = 1;
 node_dofs = 5;
 num_bcs = 4;
@@ -126,7 +126,7 @@ omega = abs(omega);
 % omega = omega/T;
 % omega = sort(omega,'ascend');
 
-freqs = omega./(2*pi);
+freqs = omega;%./(2*pi);
 [freqs,ix] = sort(abs(freqs),'ascend');
 omega = omega(ix);
 shape = shape(:,ix);

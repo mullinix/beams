@@ -1,6 +1,6 @@
 function timoshenko2D(num_elts)
 %function err = timoshenko2D(params)
-
+% num_elts=100;
 %% System parameters
 % L = 0.1524; % length of beam [m] (0.45)
 % N = 2; % number of elements [1]
@@ -133,7 +133,7 @@ fprintf(1,'data load time: %.5e\n',tf);
 
 % K(1:8,:) = []; K(:,1:8) = [];
 % M(1:8,:) = []; M(:,1:8) = [];
-
+% 
 % %% Establish polynomial eigenvalue coefficient matrices
 % X0 = (K+Omega^2*(Sigma-P));
 % X1 = 2*G*Omega;
@@ -142,7 +142,7 @@ fprintf(1,'data load time: %.5e\n',tf);
 % %% Adimensionalize
 % X1 = X1./T;
 % X2 = X2./T_squared;
-% 
+
 % %% Apply rescaling
 % % % Original scales of matrices
 % % X2_min = real(floor(log10(min(abs(X2(X2~=0)))))); 
