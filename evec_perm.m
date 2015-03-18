@@ -1,4 +1,4 @@
-mode = 3;
+mode = 9;
 % evec_test = shape(:,mode);
 % len = length(evals)/6;
 % II = eye(len);
