@@ -32,15 +32,39 @@ start_pt = 5;
 high = max(max(abs(Y(:,start_pt:5:end))));
 high = high*1.25;
 
+    spts = grab_elts(5,length(evals)/num_beams/2,1,2);
+    spts = repmat(spts,1,3);
+    v_pts = grab_elts(5,length(evals)/num_beams/2,1,3);
+    v_pts = repmat(v_pts,1,3);
+    w_pts = grab_elts(5,length(evals)/num_beams/2,1,5);
+    w_pts = repmat(w_pts,1,3);
+%     v_full = grab_elts(5,length(evals)/num_beams/2,2,3);
+%     v_full = repmat(v_full,1,3);
+%     w_full = grab_elts(5,length(evals)/num_beams/2,2,5);
+%     w_full(1) = (1==0);
+%     w_full = repmat(w_full,1,3);
+    x=linspace(0,props.L,num_elts+1);
+    x=x(2:end);
+    x=repmat(x,1,3);
+
 %% animate
 for i=1:numpts
+
+    Si = Y(i,spts);
+    Vi = Y(i,v_pts);
+    Wi = Y(i,w_pts);
+%     Vfull = Y(i,v_full);
+%     Wfull = Y(i,w_full);
+    H_vw = hvw(x,Vi,Wi);
+    Ui = Si-H_vw;
+    len=length(Vi);
     figure(1);clf;
     hold off;
     plot3(circ_x,circ_y,circ_z);
     hold on;
     for j=1:num_beams
-        beam_pts = beampts*(j-1)/num_beams+start_pt:5:(j)*beampts/num_beams;
-        plot3(beams_x(beam_pts),beams_y(beam_pts),real(Y(i,beam_pts)));
+        plot_pts = (len/num_beams*(j-1)+1):len/num_beams*j;
+        plot3(real(Ui(plot_pts)),real(Vi(plot_pts)),real(Wi(plot_pts)));
     end
 
     xlim([-xmax,xmax]);

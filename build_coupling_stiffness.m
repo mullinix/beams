@@ -5,7 +5,7 @@ clear;
 % tload = toc;
 % fprintf(1,'Time to load mat: %.5es\n',tload);
 % diary on;
-nelts=50;
+nelts=20;
 % bad=0;
 % while ~bad 
 timoshenko2D(nelts);
@@ -13,6 +13,8 @@ num_beams = 3;
 linearization = 1;
 node_dofs = 5;
 num_bcs = 4;
+gamma = 50;% turning rate: 0=0rpm, 1=900rpm, 10=9krpm, 50=50krpm
+beta=1e3;
 
 %% remove truncation error
 % K_max = max(max(abs(K)));
@@ -56,7 +58,7 @@ a_lens = locs_diff(:,1)'*locs_diff(:,1)+locs_diff(:,2)'*locs_diff(:,2);
 a_lens = sqrt(a_lens);
 l = props.a*2*pi/3; % only for axial coupling
 k=props.E*props.I./a_lens;
-beta=1e3;
+
 k_round = beta*props.E*props.I./props.L;
 kk = [ k,-k;
       -k, k];
@@ -99,11 +101,8 @@ end
 % pause;
 %% set parameters for system solution
 delta = props.delta;
-% gamma = props.gamma;
-gamma = 1e0;
-Omega = gamma/T;
-% Omega = props.Omega;
 T = props.T;
+Omega = gamma/T;
 T_squared = props.T_squared;
 
 %% set matrices for solution
