@@ -1,5 +1,11 @@
 */
 !c_code/
+!data/
+!deprecated\ code/
+!logs/
+!Misc_Scripts/
+!python/
+!Nastran/
 **/luatex*
 /*$*
 **/.*
