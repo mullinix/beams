@@ -1,9 +1,0 @@
-composite_number = 1
-material_files = mat.txt
-loads_file = loads.txt
-nodes_file = node_locations.txt
-bcs_file = bcs.txt
-displacement_dofs = 1,2,2
-total_length = 5.051814855409225e+00
-a = 5.051814855409226e-01
-Omega = 0.000000000000000e+00

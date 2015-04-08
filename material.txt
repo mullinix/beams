@@ -1,3 +1,0 @@
-E = 2.1e11
-rho = 7850
-geometry_file = geometry.txt

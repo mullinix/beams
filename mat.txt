@@ -1,3 +1,0 @@
-E = 2.100000000000000e+11
-rho = 7.820000000000000e+03
-geometry_file = elements.txt
