@@ -3,95 +3,11 @@
 #   (use "git add/rm <file>..." to update what will be committed)
 #   (use "git checkout -- <file>..." to discard changes in working directory)
 #
-#	deleted:    10-elts.mat
-#	deleted:    100-elts.mat
-#	deleted:    20-elts.mat
-#	deleted:    300-elts.mat
-#	deleted:    301-elts.mat
-#	deleted:    302-elts.mat
-#	deleted:    303-elts.mat
-#	deleted:    304-elts.mat
-#	deleted:    305-elts.mat
-#	deleted:    306-elts.mat
-#	deleted:    307-elts.mat
-#	deleted:    308-elts.mat
-#	deleted:    309-elts.mat
-#	deleted:    310-elts.mat
-#	deleted:    311-elts.mat
-#	deleted:    312-elts.mat
-#	deleted:    313-elts.mat
-#	deleted:    314-elts.mat
-#	deleted:    315-elts.mat
-#	deleted:    800
-#	deleted:    96-elts.mat
-#	deleted:    Femap-Matlab-Evals.xlsx
-#	deleted:    Matlab_integration_methods_comparison.ods
-#	deleted:    Mel_comparison.ods
-#	deleted:    ND_integrator.m
-#	deleted:    ODE_system_solution_comparison.ods
-#	deleted:    assembly.mex.cpp
-#	deleted:    assembly.mex.mexa64
-#	deleted:    assembly_mex.cpp
-#	deleted:    assembly_mex.mexa64
-#	deleted:    bcs.txt
-#	deleted:    beam_diff.m
-#	deleted:    beam_diff2.m
-#	deleted:    chung_yoo_error.xlsx
-#	deleted:    chung_yoo_error.xslx.ods
-#	deleted:    comp_entries.pl
-#	deleted:    coupled_gamma-2.mat
-#	deleted:    diary
-#	deleted:    eig_test.m
-#	deleted:    eigtest.m
-#	deleted:    elements.txt
-#	deleted:    error_results.txt
-#	deleted:    excel_geometry_builder.xlsx
-#	deleted:    fully_clamped_disconnected.mat
-#	deleted:    geometry.txt
-#	deleted:    getHvw.m
-#	deleted:    hello.txt
-#	deleted:    inputs.txt
-#	deleted:    inputs1.txt
-#	deleted:    k_check
-#	deleted:    k_check.m
-#	deleted:    linearization_error.m
-#	deleted:    loads.txt
-#	deleted:    map_rad.xlsx
-#	deleted:    mat.txt
-#	deleted:    material.txt
-#	deleted:    mtl_int_sim_gaussmeth.m
-#	deleted:    mtl_nle_sim_newmet.m
-#	deleted:    myBeamEigmodes.m
-#	deleted:    myBeamForced.m
-#	deleted:    myBeamForced2D.m
-#	deleted:    node_locations.txt
-#	deleted:    nodes.txt
-#	deleted:    omega-d0-g0-lin3.txt
-#	deleted:    omega-d0-g1-lin3.txt
-#	deleted:    omega-d0-g10-lin3.txt
-#	deleted:    omega-d0-g2-lin3.txt
-#	deleted:    omega-d0-g3-lin3.txt
-#	deleted:    omega-d0-g4-lin3.txt
-#	deleted:    omega-d0-g5-lin3.txt
-#	deleted:    omega-d0-g50-lin3.txt
-#	deleted:    omega-d0-g6-lin3.txt
-#	deleted:    omega-d0-g7-lin3.txt
-#	deleted:    omega-d0-g8-lin3.txt
-#	deleted:    omega-d0-g9-lin3.txt
-#	deleted:    omega-d1-g10-lin3.txt
-#	deleted:    omega-d1-g2-lin3.txt
-#	deleted:    omega-d1-g50-lin3.txt
-#	deleted:    omega-d5-g10-lin3.txt
-#	deleted:    omega-d5-g2-lin3.txt
-#	deleted:    omega-d5-g50-lin3.txt
-#	deleted:    ref_5_requirement_calculator.ods
+#	modified:   git_rm.pl
+#	modified:   git_status.txt
 #	deleted:    test mx.ods
 #	deleted:    time_integrate.m
 #	deleted:    timoshenko_solver.m
 #	deleted:    w-bending_unclamped_disconnected.mat
 #
-# Untracked files:
-#   (use "git add <file>..." to include in what will be committed)
-#
-#	git_status.txt
 no changes added to commit (use "git add" and/or "git commit -a")
