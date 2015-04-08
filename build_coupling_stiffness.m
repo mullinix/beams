@@ -5,15 +5,17 @@ clear;
 % tload = toc;
 % fprintf(1,'Time to load mat: %.5es\n',tload);
 % diary on;
-nelts=20;
+nelts=100;
 % bad=0;
 % while ~bad 
 timoshenko2D(nelts);
 num_beams = 3;
 linearization = 1;
+solve_evals = 0;
 node_dofs = 5;
 num_bcs = 4;
-gamma = 50;% turning rate: 0=0rpm, 1=900rpm, 10=9krpm, 50=50krpm
+global gamma;
+% gamma = 50;% turning rate: 0=0rpm, 1=900rpm, 10=9krpm, 50=50krpm
 beta=1e3;
 
 %% remove truncation error
@@ -113,51 +115,56 @@ X2 = M;
 X1 = X1./T;
 X2 = X2./T_squared;
 
-%% solve normal modes using linearization 3
+%% solve normal modes using selected linearization if requested
 % spy(K)
-tic;
-Z = zeros(size(K));
-if(linearization==1)
-    % std linearization
-    a=norm(X2);
-    b=norm(X1);
-    c=norm(X0);
-    alpha = sqrt(c/a);
-    beta = 2/(c+alpha*b);
-    X0 = X0*beta;
-    X1 = X1*alpha*beta;
-    X2 = X2*alpha^2*beta;
-    [shape,omega] = polyeig(-X0,-X1,X2);
-    evals = omega;
-    omega = omega*(alpha);
-elseif(linearization==3)
-    % L3 linearization
+if(solve_evals==1)
+    tic;
     Z = zeros(size(K));
-    A = [Z,-X0; X2, Z];
-    B = [X2, X1; Z, X2];
-    [shape,omega] = eig(A,B);
-    evals = diag(omega);
-    omega = evals;
-elseif(linearization==4)
-    % L4 linearization
-    Z = zeros(size(K));
-    A = [X0,Z; X1, X0];
-    B = [Z, -X0; X2, Z];
-    [shape,omega] = eig(A,B);
-    evals = diag(omega);
-    omega = evals;
+    if(linearization==1)
+        % std linearization
+        a=norm(X2);
+        b=norm(X1);
+        c=norm(X0);
+        alpha = sqrt(c/a);
+        beta = 2/(c+alpha*b);
+        X0 = X0*beta;
+        X1 = X1*alpha*beta;
+        X2 = X2*alpha^2*beta;
+        [shape,omega] = polyeig(-X0,-X1,X2);
+        evals = omega;
+        omega = omega*(alpha);
+    elseif(linearization==3)
+        % L3 linearization
+        Z = zeros(size(K));
+        A = [Z,-X0; X2, Z];
+        B = [X2, X1; Z, X2];
+        [shape,omega] = eig(A,B);
+        evals = diag(omega);
+        omega = evals;
+    elseif(linearization==4)
+        % L4 linearization
+        Z = zeros(size(K));
+        A = [X0,Z; X1, X0];
+        B = [Z, -X0; X2, Z];
+        [shape,omega] = eig(A,B);
+        evals = diag(omega);
+        omega = evals;
+    end
+    omega = abs(omega);
+    [omega,ix] = sort(omega,'ascend');
+    shape = shape(:,ix);
+    evals = evals(ix);
+    freqs = abs(evals);
+    % savename = sprintf('%d-elts.mat',nelts);
+    % save(savename,'omega','shape');
+    tf = toc;
+    err = sum(abs(1-(abs(real(evals))+abs(imag(evals)))./abs(evals)));
+    display(err);
+    fprintf(1,'eigenvalue solve time: %.5e\n',tf);
 end
-omega = abs(omega);
-[omega,ix] = sort(omega,'ascend');
-shape = shape(:,ix);
-evals = evals(ix);
-freqs = abs(evals);
-% savename = sprintf('%d-elts.mat',nelts);
-% save(savename,'omega','shape');
-tf = toc;
-err = sum(abs(1-(abs(real(evals))+abs(imag(evals)))./abs(evals)));
-display(err);
-fprintf(1,'eigenvalue solve time: %.5e\n',tf);
+system('mv *.dat ./tmp_data/');
+system('mv *.txt ./tmp_data/');
+save('matrices.mat','K','G','M','P','Sigma');
 % if(isnan(err))
 %     bad=1;
 % end
