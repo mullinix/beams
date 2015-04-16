@@ -11,12 +11,19 @@ nelts=100;
 timoshenko2D(nelts);
 num_beams = 3;
 linearization = 1;
-solve_evals = 0;
+solve_evals = 1;
 node_dofs = 5;
 num_bcs = 4;
 global gamma;
+gamma=0;
 % gamma = 50;% turning rate: 0=0rpm, 1=900rpm, 10=9krpm, 50=50krpm
 beta=1e3;
+%% set properties
+props.num_beams = num_beams;
+props.node_dofs = node_dofs;
+props.num_bcs = num_bcs;
+props.beta = beta;
+props.nelts = nelts;
 
 %% remove truncation error
 % K_max = max(max(abs(K)));
@@ -164,7 +171,7 @@ if(solve_evals==1)
 end
 system('mv *.dat ./tmp_data/');
 system('mv *.txt ./tmp_data/');
-save('matrices.mat','K','G','M','P','Sigma');
+save('matrices.mat','K','G','M','P','Sigma','props');
 % if(isnan(err))
 %     bad=1;
 % end

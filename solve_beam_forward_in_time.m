@@ -8,7 +8,7 @@ num_cycles = 2;
 t_final = (2*pi*num_cycles)/(freqs(mode));
 t = linspace(0,t_final,numpts);
 X2inv = inv(X2);
-X1 = X1*1i;
+X1 = -X1*1i;
 %% ode solution
 [t,Y] = ode23t(@(t,Y)beam_ode(t,Y,X0,X1,X2inv),t,Y0);
 
