@@ -31,6 +31,7 @@ void build_m(double xe, double xe1, double rho, double A);
 void build_g(double xe, double xe1, double rho, double A);
 void build_k(double xe, double xe1, double E, double A, double Iyy, double Izz);
 void build_sigma(double xe, double xe1, double len, double rho, double A, double a, double Omega);
+void build_f(double xe, double xe1, double rho, double A, double a);
 void build_global_matrices(void);
 void removeRow(Eigen::MatrixXd& matrix, unsigned int rowToRemove);
 void removeColumn(Eigen::MatrixXd& matrix, unsigned int colToRemove);
@@ -68,24 +69,27 @@ MatrixXd m;
 MatrixXd g;
 MatrixXd k;
 MatrixXd sigma;
-//MatrixXd f;
+MatrixXd f;
 // global matrices
 MatrixXd P;
 MatrixXd M;
 MatrixXd G;
 MatrixXd K;
 MatrixXd Sigma;
+MatrixXd F;
 // file output strs
 const char* P_file = "P.dat";
 const char* M_file = "M.dat";
 const char* G_file = "G.dat";
 const char* K_file = "K.dat";
 const char* Sigma_file = "Sigma.dat";
+const char* F_file = "F.dat";
 FILE * p_fp;
 FILE * m_fp;
 FILE * g_fp;
 FILE * k_fp;
 FILE * sigma_fp;
+FILE * f_fp;
 
 //params
 
@@ -163,6 +167,7 @@ int main(int argc, char** argv) {
 	G = MatrixXd::Zero(global_dofs,global_dofs);
 	K = MatrixXd::Zero(global_dofs,global_dofs);
 	Sigma = MatrixXd::Zero(global_dofs,global_dofs);
+	F = MatrixXd::Zero(global_dofs,1);
 
 	gettimeofday(&tstart,NULL);
 	build_global_matrices();
@@ -179,6 +184,7 @@ int main(int argc, char** argv) {
 	g_fp = fopen(G_file,"w");
 	k_fp = fopen(K_file,"w");
 	sigma_fp = fopen(Sigma_file,"w");
+	f_fp = fopen(F_file,"w");
 	
 	if(p_fp==NULL){
 		printf("Error: Couldn't open %s for printing!\n",P_file);
@@ -200,6 +206,10 @@ int main(int argc, char** argv) {
 		printf("Error: Couldn't open %s for printing!\n",Sigma_file);
 		return 1;
 	}
+	if(f_fp==NULL){
+		printf("Error: Couldn't open %s for printing!\n",F_file);
+		return 1;
+	}
 	
 	for(int i=0; i<P.rows(); i++) {
 		for(int j=0; j<P.cols(); j++) {
@@ -214,6 +224,7 @@ int main(int argc, char** argv) {
 		fprintf(g_fp,"\n");
 		fprintf(k_fp,"\n");
 		fprintf(sigma_fp,"\n");
+		fprintf(f_fp,"%.15e\n",F(i));
 	}
 	
 	fclose(p_fp);
@@ -221,6 +232,7 @@ int main(int argc, char** argv) {
 	fclose(g_fp);
 	fclose(k_fp);
 	fclose(sigma_fp);
+	fclose(f_fp);
 
 	
 	/*ofstream data_stream_write(P_file);
@@ -720,7 +732,24 @@ void build_sigma(double xe, double xe1, double len, double rho, double A, double
 	
 }
 
+void build_f(double xe, double xe1, double rho, double A, double a){
+	f = MatrixXd::Zero(elt_dofs,1);
+	double l=xe1-xe;
+	f <<       (A*l*rho*(3*a + l - 3*xe))/6.0,
+         -(A*l*rho*(10*a + 3*l - 10*xe))/20.0,
+         -(A*l*l*rho*(5*a + 2*l - 5*xe))/60.0,
+                                          0.0,
+                                          0.0,
+             (A*l*rho*(3*a + 2*l - 3*xe))/6.0,
+         -(A*l*rho*(10*a + 7*l - 10*xe))/20.0,
+          (A*l*l*rho*(5*a + 3*l - 5*xe))/60.0,
+                                          0.0,
+                                          0.0;
+	
+}
+
 void poly_diff(double poly[], int n, double poly_return[]) {
+	// calculates derivative of a polynomial stored as an array
 	for(int i=0; i<n-1; i++) {
 		poly_return[i] = (i+1.0)*poly[i+1];
 	}
@@ -729,6 +758,7 @@ void poly_diff(double poly[], int n, double poly_return[]) {
 }
 
 double poly_int(double poly[], int n, double a, double b) {
+	// evaluates the integral of a polynomial stored as an array
 	double I=0.0;
 	for(int i=0; i<n; i++) {
 		I += (poly[i]/(i+1.0))*(pow(b,i+1.0)-pow(a,i+1.0));
@@ -737,6 +767,7 @@ double poly_int(double poly[], int n, double a, double b) {
 }
 
 void poly_val(double poly[], int n, double x, double poly_return[]) {
+	// evaluates a polynomial stored as an array for a particular value x
 	for(int i=1; i<n; i++) {
 		poly_return[i] = pow(x,i)*poly[i];
 	}
@@ -758,6 +789,7 @@ void poly_shift(double poly[], int n) {
 }
 
 void poly_mult(double poly1[],double poly2[], int m, int n, double poly_return[]) {
+	// multiply two polynomials stored in arrays
 	//My implementation
 	for(int i=0; i<m; i++) {
 		for(int j=0;j<n; j++) {
@@ -779,6 +811,7 @@ void poly_mult(double poly1[],double poly2[], int m, int n, double poly_return[]
 }
 
 void mult_vecs(int i, int j,vector<VectorXd> input_mx,double arry_out[]) {
+	// multiply shape vectors
 	int m = input_mx[i].rows();
 	int n = input_mx[j].rows();
 	double arry1[m];
@@ -796,6 +829,7 @@ void mult_vecs(int i, int j,vector<VectorXd> input_mx,double arry_out[]) {
 }
 
 void build_global_matrices(void){
+	// main driver to assemble global matrices
 	int global_index[2*nodal_dofs];
 	for (int clear_idx=0; clear_idx<2*nodal_dofs; clear_idx++) {
 		global_index[clear_idx]=0;
@@ -837,6 +871,7 @@ void build_global_matrices(void){
 			build_k(xe,xe1,materials[mat_idx].E,A,Iyy,Izz);	
 			// a and Omega are currently globals	
 			build_sigma(xe,xe1,inputs.total_length,materials[mat_idx].rho,A,a,Omega);
+			build_f(xe, xe1, materials[mat_idx].rho, A, a);
 			// Set global values
 			for(int i=0;i<2*nodal_dofs;i++) {
 				for(int j=0; j<2*nodal_dofs; j++) {
@@ -846,6 +881,7 @@ void build_global_matrices(void){
 					K(global_index[i],global_index[j]) += k(i,j);
 					Sigma(global_index[i],global_index[j]) += sigma(i,j);
 				}
+				F(global_index[i],0) += f(i);
 			}
 		}
 	}
@@ -872,6 +908,7 @@ void build_global_matrices(void){
 		removeRow(K,global_delete_index[i]);
 		removeColumn(Sigma,global_delete_index[i]);
 		removeRow(Sigma,global_delete_index[i]);
+		removeRow(F,global_delete_index[i]);
 	}
 }
 

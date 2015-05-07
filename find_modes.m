@@ -1,3 +1,7 @@
+% find_modes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% will plot several shapes for a mode to visualize the system.
+
 %% get displacement modes
 dof_shift = 5;
 chunk_size = 2;

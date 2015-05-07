@@ -1,3 +1,10 @@
+% build_coupling_stiffness
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% call on assemble_matrices to build the single beam system matrices. Then,
+% couple three copies of the single beam around the hub. Finally, solve the
+% eigenvalue problem and save the results. (You must set "solve_evals=1" or
+% it won't solve the eigenvalue problem)
+
 clear;
 %% load values
 % tic;
@@ -15,9 +22,9 @@ solve_evals = 1;
 node_dofs = 5;
 num_bcs = 4;
 global gamma;
-gamma=0;
+gamma=5;
 % gamma = 50;% turning rate: 0=0rpm, 1=900rpm, 10=9krpm, 50=50krpm
-beta=1e3;
+beta=1e0;
 %% set properties
 props.num_beams = num_beams;
 props.node_dofs = node_dofs;
@@ -43,7 +50,8 @@ props.nelts = nelts;
 % Sigma(abs(Sigma)<S_low)=0;
 
 %% build multi beams
-KK = zeros(size(K)*num_beams); MM=KK; GG=KK; PP=KK; SS=KK;
+if(num_beams>1)
+KK = zeros(size(K)*num_beams); MM=KK; GG=KK; PP=KK; SS=KK; FF=KK(:,1);
 for b_idx = 1:num_beams
     start_idx = (b_idx-1)*(num_nodes*node_dofs-num_bcs)+1;
     end_idx = b_idx*(num_nodes*node_dofs-num_bcs);
@@ -52,11 +60,12 @@ for b_idx = 1:num_beams
     MM(start_idx:end_idx,start_idx:end_idx)=M;
     PP(start_idx:end_idx,start_idx:end_idx)=P;
     SS(start_idx:end_idx,start_idx:end_idx)=Sigma;
+    FF(start_idx:end_idx)=F;
 end
 
-K=KK; G=GG; M=MM; P=PP; Sigma=SS;
-clear KK GG MM PP SS;
-
+K=KK; G=GG; M=MM; P=PP; Sigma=SS; F=FF;
+clear KK GG MM PP SS FF;
+end
 %% build vars
 nn = num_beams;
 angles = (0:nn-1).*(2*pi/nn);
@@ -171,7 +180,12 @@ if(solve_evals==1)
 end
 system('mv *.dat ./tmp_data/');
 system('mv *.txt ./tmp_data/');
-save('matrices.mat','K','G','M','P','Sigma','props');
+% sv_elts = grab_elts(5,length(X0)/num_beams,3,1);
+% sv_elts = repmat(sv_elts,1,num_beams);
+% sv_shape=shape(sv_elts,:);
+% eval_store=evals(3);
+% shape_store=sv_shape(:,3);
+save('matrices.mat','K','G','M','P','Sigma','F','props');%,'eval_store','shape_store');
 % if(isnan(err))
 %     bad=1;
 % end

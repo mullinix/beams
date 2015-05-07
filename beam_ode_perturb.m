@@ -1,5 +1,6 @@
 function Ydot = beam_ode_perturb(t,Y,K,G,P,Sigma,C,X2inv,k,epsilon,Omega)
-
+% function Ydot = beam_ode_perturb(t,Y,K,G,P,Sigma,C,X2inv,k,epsilon,Omega)
+% A perturbed version of beam_ode.
 x=Y(1:end/2);
 y=Y(end/2+1:end);
 

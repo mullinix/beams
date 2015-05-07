@@ -1,3 +1,4 @@
+% test the eigenvalue solution. required: sep_modes must be run first!
 err = zeros(length(SVevals),1);
 for i=1:length(SVevals)
     res = (SVX2*SVevals(i)^2-SVX1*SVevals(i)-SVX0)*SVshape(:,i);

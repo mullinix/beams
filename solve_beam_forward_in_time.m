@@ -1,5 +1,15 @@
-build_coupling_stiffness;
-evec_perm;
+% solve_beam_forward_in_time
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% just displaces beams by eigenvector shape corresponding to a particular
+% eigenfrequency, then runs the solution forward in time.
+
+rebuild=1;
+if(rebuild == 1)
+    build_coupling_stiffness;
+    evec_perm;
+else
+load matrices;
+end
 z=zeros(size(shape(:,mode)));
 Y0 = [shape(:,mode);
                   z; ];
@@ -83,7 +93,7 @@ for i=1:numpts
         plot_pts2 = (len2/num_beams*(j-1)+1):len2/num_beams*j;
         H_vw = hvw(x,Vfull(plot_pts2),Wfull(plot_pts2));
         Ui = Si(plot_pts)-H_vw;
-        u=real(Ui);           u = u.*5;
+        u=real(Ui);           u = u.*5;%exaggerate the displacements
         v=real(Vi(plot_pts)); v = v.*5;
         w=real(Wi(plot_pts)); w = w.*5;
         x_len = linspace(0,1,length(u));

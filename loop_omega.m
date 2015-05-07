@@ -1,3 +1,12 @@
+% loop_omega
+%%%%%%%%%%%%%%%%%%%%%%
+% loop over omega rotation speed, grab the first 50 eigenvalues, save the
+% results to disk. 
+%% TODO:
+% Replace the full eigenvalue solver (polyeigs) with the "eigs" command so
+% that only 50 values are solved, not the entire system. Will be much
+% faster!
+%% run the code
 global gamma;
 for gamma=0:0.1:50
     build_coupling_stiffness

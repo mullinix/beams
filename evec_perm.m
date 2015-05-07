@@ -1,4 +1,8 @@
-mode = 1;
+% permute the system and verify that the permutation is also a solution
+
+% which mode we shall test
+mode = 5;
+%% uncomment the following to run the test
 % evec_test = shape(:,mode);
 % len = length(evals)/6;
 % II = eye(len);

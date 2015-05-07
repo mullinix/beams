@@ -22,9 +22,12 @@ function elts = grab_elts(chunk_size, array_length, group_size, idx_start)
 %     
 %     Ref: http://www.mathworks.com/matlabcentral/answers/80246-i-need-to-remove-every-other-9-rows-of-a-matrix
 %
-modtester = mod((1:array_length),chunk_size);
-elts=(modtester<group_size+mod(idx_start,chunk_size) & ...
-    modtester>=mod(idx_start,chunk_size));
+modtester = mod((1:array_length)-1,chunk_size)+1;
+idx=mod((idx_start:(idx_start+group_size-1))-1,chunk_size)+1;
+elts=ones(size(modtester))==0;
+for i=1:length(idx)
+    elts=elts|modtester==idx(i);
+end
 
 end
 

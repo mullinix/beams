@@ -1,3 +1,5 @@
+% separates the SV and W modes. must run build_coupling_stiffness and solve
+% the eigenvalue problem first!
 Xsize=length(X0)/3;
 
 Welts =  grab_elts(node_dofs,Xsize,2,5);
