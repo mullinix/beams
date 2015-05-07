@@ -15,7 +15,7 @@ clear;
 nelts=100;
 % bad=0;
 % while ~bad 
-timoshenko2D(nelts);
+assemble_matrices(nelts);
 num_beams = 3;
 linearization = 1;
 solve_evals = 1;
